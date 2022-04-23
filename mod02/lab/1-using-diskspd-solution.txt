@@ -1,0 +1,25 @@
+1. Запустите DiskSpd.exe
+
+Со следующими параметрами
+
+Продолжительность нагрузки в сек: 3 minutes
+Путь к файлу, который будет создан для тестирования: ..\Tuning-SqlServer-Databases\mod02\lab\test.dat
+Размер файла .dat: 2 GB
+Кол-во потоков: 4
+Процент записи: 40%
+Размер блока: 64 KB
+Кол-во I/O запросов: 32
+Метод чтения\записи: Random
+Измерение статистики задержек: Yes
+
+diskspd.exe -d180 -c2G -r -t4 -w40 -o32 -b64K -L D:\Labfiles\Lab02\test.dat;
+
+2. Просмотрите результаты в файле
+
+o CPU activity during the test, for each CPU.
+o Total I/O, read I/O, and write I/O statistics for each thread.
+o Total speed, read speed, and write speed by percentile.
+
+3. Удалите файл .dat
+
+del ..\Tuning-SqlServer-Databases\mod02\lab\test.dat
