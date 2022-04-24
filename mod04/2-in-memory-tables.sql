@@ -1,8 +1,8 @@
 USE adventureworks
 GO
 
--- 1. Таблица в памяти с DURABILITY=SCHEMA_AND_DATA
--- В БД adventureworks существует MEMORY_OPTIMIZED_DATA AdventureWorks_Mod
+-- 1. РўР°Р±Р»РёС†Р° РІ РїР°РјСЏС‚Рё СЃ DURABILITY=SCHEMA_AND_DATA
+-- Р’ Р‘Р” adventureworks СЃСѓС‰РµСЃС‚РІСѓРµС‚ MEMORY_OPTIMIZED_DATA AdventureWorks_Mod
 
 SELECT * FROM sys.filegroups
 --WHERE type = 'FX';
@@ -10,7 +10,7 @@ SELECT * FROM sys.filegroups
 SELECT * FROM sys.database_files
 --WHERE type = 2;
 
--- Если не существует MEMORY_OPTIMIZED_DATA_FILEGROUP, ее нужно создать:
+-- Р•СЃР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ MEMORY_OPTIMIZED_DATA_FILEGROUP, РµРµ РЅСѓР¶РЅРѕ СЃРѕР·РґР°С‚СЊ:
 /* ALTER DATABASE adventureworks
 ADD FILEGROUP mem_data CONTAINS MEMORY_OPTIMIZED_DATA;
 GO
@@ -27,7 +27,7 @@ CREATE TABLE dbo.durable (
 WITH (MEMORY_OPTIMIZED=ON) 
  GO
 
--- 2. Таблица в памяти с DURABILITY=SCHEMA_ONLY
+-- 2. РўР°Р±Р»РёС†Р° РІ РїР°РјСЏС‚Рё СЃ DURABILITY=SCHEMA_ONLY
  CREATE TABLE dbo.nondurable ( 
     Id INT IDENTITY(1,1) PRIMARY KEY NONCLUSTERED,
     AltId INT NOT NULL , 
@@ -37,7 +37,7 @@ WITH (MEMORY_OPTIMIZED=ON)
  WITH (MEMORY_OPTIMIZED=ON, DURABILITY=SCHEMA_ONLY) 
  GO
 
--- 3. Вставить данные в обе таблицы
+-- 3. Р’СЃС‚Р°РІРёС‚СЊ РґР°РЅРЅС‹Рµ РІ РѕР±Рµ С‚Р°Р±Р»РёС†С‹
 INSERT dbo.durable VALUES (314, SYSDATETIME(), 2) 
 INSERT dbo.durable VALUES (171, SYSDATETIME(), NULL) 
 INSERT dbo.durable VALUES (258, SYSDATETIME(), 1) 
@@ -49,33 +49,33 @@ INSERT dbo.nondurable VALUES (258, SYSDATETIME(), 1)
 INSERT dbo.nondurable VALUES (911, SYSDATETIME(), NULL) 
 GO
 
--- 4. Выбрать данные из таблиц
+-- 4. Р’С‹Р±СЂР°С‚СЊ РґР°РЅРЅС‹Рµ РёР· С‚Р°Р±Р»РёС†
 
 select * from dbo.durable;
 select * from dbo.nondurable;
 
--- 5. Перезагрузить SQL Server и снова выбрать данные (п.4)
+-- 5. РџРµСЂРµР·Р°РіСЂСѓР·РёС‚СЊ SQL Server Рё СЃРЅРѕРІР° РІС‹Р±СЂР°С‚СЊ РґР°РЅРЅС‹Рµ (Рї.4)
 
--- 6. Удалить таблицы
+-- 6. РЈРґР°Р»РёС‚СЊ С‚Р°Р±Р»РёС†С‹
  DROP TABLE IF EXISTS dbo.durable;
  DROP TABLE IF EXISTS dbo.nondurable;
  GO
 
--- 6. Сравнение In-Memoty Table и таблице на диске
+-- 6. РЎСЂР°РІРЅРµРЅРёРµ In-Memoty Table Рё С‚Р°Р±Р»РёС†Рµ РЅР° РґРёСЃРєРµ
 
--- 6.1 Таблица в памяти
+-- 6.1 РўР°Р±Р»РёС†Р° РІ РїР°РјСЏС‚Рё
 CREATE TABLE dbo.MemoryTable
 (id INTEGER NOT NULL PRIMARY KEY NONCLUSTERED HASH WITH (BUCKET_COUNT = 1000000),
  date_value DATETIME NULL)
 WITH (MEMORY_OPTIMIZED = ON, DURABILITY = SCHEMA_AND_DATA);
 
--- 6.1 Таблица на диске
+-- 6.1 РўР°Р±Р»РёС†Р° РЅР° РґРёСЃРєРµ
 CREATE TABLE dbo.DiskTable
 (id INTEGER NOT NULL PRIMARY KEY NONCLUSTERED,
  date_value DATETIME NULL);
 
 
--- 6.2 Вставить 500 000 строк в таблицу на диске
+-- 6.2 Р’СЃС‚Р°РІРёС‚СЊ 500 000 СЃС‚СЂРѕРє РІ С‚Р°Р±Р»РёС†Сѓ РЅР° РґРёСЃРєРµ
 -- 8 Gb RAM, Intel Core i5-8400, SSD, SQL Server 2017  ~ 5 sec 
 
 BEGIN TRAN
@@ -90,7 +90,7 @@ COMMIT;
 SELECT COUNT(*) FROM dbo.DiskTable;
 GO
 
--- 6.3 Вставить 500 000 строк в таблицу в памяти
+-- 6.3 Р’СЃС‚Р°РІРёС‚СЊ 500 000 СЃС‚СЂРѕРє РІ С‚Р°Р±Р»РёС†Сѓ РІ РїР°РјСЏС‚Рё
 -- 8 Gb RAM, Intel Core i5-8400, SSD, SQL Server 2017  ~ 1 sec 
 BEGIN TRAN
 	DECLARE @Memid int = 1
@@ -104,14 +104,14 @@ COMMIT;
 SELECT COUNT(*) FROM dbo.MemoryTable;
 GO
 
--- 6.4 Удалить все данные из таблицы на диске ~ 1 sec 
+-- 6.4 РЈРґР°Р»РёС‚СЊ РІСЃРµ РґР°РЅРЅС‹Рµ РёР· С‚Р°Р±Р»РёС†С‹ РЅР° РґРёСЃРєРµ ~ 1 sec 
 DELETE FROM DiskTable;
 
--- 6.5 Удалить все данные из таблицы в памяти ~ 0 sec 
+-- 6.5 РЈРґР°Р»РёС‚СЊ РІСЃРµ РґР°РЅРЅС‹Рµ РёР· С‚Р°Р±Р»РёС†С‹ РІ РїР°РјСЏС‚Рё ~ 0 sec 
 DELETE FROM MemoryTable;
 GO
 
--- 7.  Информация о таблицах в памяти
+-- 7.  РРЅС„РѕСЂРјР°С†РёСЏ Рѕ С‚Р°Р±Р»РёС†Р°С… РІ РїР°РјСЏС‚Рё
 SELECT o.Name, m.*
 FROM
 sys.dm_db_xtp_table_memory_stats AS m
@@ -120,7 +120,7 @@ ON m.object_id = o.id;
 GO
 
 
--- 8. Создать native stored proc
+-- 8. РЎРѕР·РґР°С‚СЊ native stored proc
 -- EXEC sp_changedbowner 'sa'
 
 CREATE PROCEDURE dbo.InsertData
@@ -136,12 +136,12 @@ BEGIN ATOMIC WITH (TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = 'us_englis
 END;
 GO
 
--- 9. Вставить данные с помощью nsp ~ 0 sec
+-- 9. Р’СЃС‚Р°РІРёС‚СЊ РґР°РЅРЅС‹Рµ СЃ РїРѕРјРѕС‰СЊСЋ nsp ~ 0 sec
 EXEC dbo.InsertData;
 
 SELECT COUNT(*) FROM dbo.MemoryTable;
 
--- 10. Удалить таблицы и ХП
+-- 10. РЈРґР°Р»РёС‚СЊ С‚Р°Р±Р»РёС†С‹ Рё РҐРџ
  DROP PROC IF EXISTS dbo.InsertData;
  DROP TABLE IF EXISTS dbo.DiskTable;
  DROP TABLE IF EXISTS dbo.MemoryTable;

@@ -1,7 +1,7 @@
--- 1. Откройте скрипт 2-1-hanging-tran.sql и выполните инструкции. Получите update_session_id
--- 2. Откройте скрипт 2-2-blocked-tran.sql и выполните инструкции. Получите select_session_id
+-- 1. РћС‚РєСЂРѕР№С‚Рµ СЃРєСЂРёРїС‚ 2-1-hanging-tran.sql Рё РІС‹РїРѕР»РЅРёС‚Рµ РёРЅСЃС‚СЂСѓРєС†РёРё. РџРѕР»СѓС‡РёС‚Рµ update_session_id
+-- 2. РћС‚РєСЂРѕР№С‚Рµ СЃРєСЂРёРїС‚ 2-2-blocked-tran.sql Рё РІС‹РїРѕР»РЅРёС‚Рµ РёРЅСЃС‚СЂСѓРєС†РёРё. РџРѕР»СѓС‡РёС‚Рµ select_session_id
 
--- 3. Добавьте значения update_session_id и select_session_id из предыдущих запросов во временную таблицу #
+-- 3. Р”РѕР±Р°РІСЊС‚Рµ Р·РЅР°С‡РµРЅРёСЏ update_session_id Рё select_session_id РёР· РїСЂРµРґС‹РґСѓС‰РёС… Р·Р°РїСЂРѕСЃРѕРІ РІРѕ РІСЂРµРјРµРЅРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ #
 
 DROP TABLE IF EXISTS #session;
 CREATE TABLE #session (session_id int NOT NULL);
@@ -11,29 +11,29 @@ INSERT #session
 VALUES (<update_session_id>),(<select_session_id>);
 
 
--- 4. Просмотр состояния сессии. Сессия update - состояние sleeping; Сессия select - состояние running 
+-- 4. РџСЂРѕСЃРјРѕС‚СЂ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃРµСЃСЃРёРё. РЎРµСЃСЃРёСЏ update - СЃРѕСЃС‚РѕСЏРЅРёРµ sleeping; РЎРµСЃСЃРёСЏ select - СЃРѕСЃС‚РѕСЏРЅРёРµ running 
 SELECT status, * 
 FROM sys.dm_exec_sessions 
 WHERE session_id IN (SELECT session_id FROM #session);
 
--- 5. Просмотр состояния запроса. Сессия update не имеет запроса; Сессия select - suspended (ждет освобождения ресурса)
+-- 5. РџСЂРѕСЃРјРѕС‚СЂ СЃРѕСЃС‚РѕСЏРЅРёСЏ Р·Р°РїСЂРѕСЃР°. РЎРµСЃСЃРёСЏ update РЅРµ РёРјРµРµС‚ Р·Р°РїСЂРѕСЃР°; РЎРµСЃСЃРёСЏ select - suspended (Р¶РґРµС‚ РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ СЂРµСЃСѓСЂСЃР°)
 SELECT status, * 
 FROM sys.dm_exec_requests  
 WHERE session_id IN (SELECT session_id FROM #session);
 
--- 6. Просмотр статуса задач. Сессия update не имеет задачи; Сессия select - suspended (ждет освобождения ресурса)
+-- 6. РџСЂРѕСЃРјРѕС‚СЂ СЃС‚Р°С‚СѓСЃР° Р·Р°РґР°С‡. РЎРµСЃСЃРёСЏ update РЅРµ РёРјРµРµС‚ Р·Р°РґР°С‡Рё; РЎРµСЃСЃРёСЏ select - suspended (Р¶РґРµС‚ РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ СЂРµСЃСѓСЂСЃР°)
 SELECT * 
 FROM sys.dm_os_tasks
 WHERE session_id IN (SELECT session_id FROM #session);
 
--- 7. Просмотр состояния worker. Сессия update не имеет worker; Сессия select - suspended (ждет освобождения ресурса)
+-- 7. РџСЂРѕСЃРјРѕС‚СЂ СЃРѕСЃС‚РѕСЏРЅРёСЏ worker. РЎРµСЃСЃРёСЏ update РЅРµ РёРјРµРµС‚ worker; РЎРµСЃСЃРёСЏ select - suspended (Р¶РґРµС‚ РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ СЂРµСЃСѓСЂСЃР°)
 SELECT dot.session_id, dow.state, dow.*
 FROM sys.dm_os_workers AS dow
 JOIN sys.dm_os_tasks AS dot
 ON   dot.task_address = dow.task_address
 WHERE dot.session_id IN (SELECT session_id FROM #session);
 
--- 8. Просмотр времени ожидания / готовность к запуску
+-- 8. РџСЂРѕСЃРјРѕС‚СЂ РІСЂРµРјРµРЅРё РѕР¶РёРґР°РЅРёСЏ / РіРѕС‚РѕРІРЅРѕСЃС‚СЊ Рє Р·Р°РїСѓСЃРєСѓ
 SELECT	dot.session_id, dow.state,
 		CASE WHEN dow.state = 'SUSPENDED' 
 			 THEN (SELECT ms_ticks FROM sys.dm_os_sys_info) - dow.wait_started_ms_ticks
@@ -48,7 +48,7 @@ JOIN sys.dm_os_tasks AS dot
 ON   dot.task_address = dow.task_address
 WHERE dot.session_id IN (SELECT session_id FROM #session);
 
--- 9. Просмотр состояния потока. Сессия update не имеет потока; Сессия select - suspended (ждет освобождения ресурса)
+-- 9. РџСЂРѕСЃРјРѕС‚СЂ СЃРѕСЃС‚РѕСЏРЅРёСЏ РїРѕС‚РѕРєР°. РЎРµСЃСЃРёСЏ update РЅРµ РёРјРµРµС‚ РїРѕС‚РѕРєР°; РЎРµСЃСЃРёСЏ select - suspended (Р¶РґРµС‚ РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ СЂРµСЃСѓСЂСЃР°)
 SELECT dot.session_id,  dth.*
 FROM sys.dm_os_threads dth
 JOIN sys.dm_os_workers AS dow
@@ -57,14 +57,14 @@ JOIN sys.dm_os_tasks AS dot
 ON   dot.task_address = dow.task_address
 WHERE dot.session_id IN (SELECT session_id FROM #session);
 
--- 10. В скрипте 2-1-hanging-tran.sql выполните команду ROLLBACK;
+-- 10. Р’ СЃРєСЂРёРїС‚Рµ 2-1-hanging-tran.sql РІС‹РїРѕР»РЅРёС‚Рµ РєРѕРјР°РЅРґСѓ ROLLBACK;
 
--- 11. Вернитесь к окну скрипта 2-2-blocked-tran.sql. Убедитесь, что запрос select вернул результаты.
+-- 11. Р’РµСЂРЅРёС‚РµСЃСЊ Рє РѕРєРЅСѓ СЃРєСЂРёРїС‚Р° 2-2-blocked-tran.sql. РЈР±РµРґРёС‚РµСЃСЊ, С‡С‚Рѕ Р·Р°РїСЂРѕСЃ select РІРµСЂРЅСѓР» СЂРµР·СѓР»СЊС‚Р°С‚С‹.
 
--- 12. Просмотр состояния сессий. Sleeping
+-- 12. РџСЂРѕСЃРјРѕС‚СЂ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃРµСЃСЃРёР№. Sleeping
 SELECT status, * 
 FROM sys.dm_exec_sessions 
 WHERE session_id IN (SELECT session_id FROM #session);
 
--- 13. Удалить временную таблицу
+-- 13. РЈРґР°Р»РёС‚СЊ РІСЂРµРјРµРЅРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ
 DROP TABLE IF EXISTS #session

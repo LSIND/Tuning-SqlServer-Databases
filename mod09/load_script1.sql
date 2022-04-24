@@ -1,5 +1,5 @@
--- load generation script 1
--- loops for up to 60 minutes, or until the ##stopload shared temp table is created
+-- script 1
+-- цикл на 60 минут (или пока не будет созадана таблица ##stopload)
 DROP TABLE IF EXISTS ##stopload;
 
 USE AdventureWorks;

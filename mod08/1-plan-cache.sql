@@ -1,7 +1,7 @@
 USE AdventureWorks;
 GO
 
--- 1. Информация о plan cache stores
+-- 1. РРЅС„РѕСЂРјР°С†РёСЏ Рѕ plan cache stores
 
 SELECT *
 FROM sys.dm_os_memory_cache_counters
@@ -15,7 +15,7 @@ ON ht.cache_address = cc.cache_address
 WHERE cc.name IN ('Object Plans','SQL Plans','Bound Trees','Extended Stored Procedure');
 
 
---3. Список атрибутов для plan cache key:
+--3. РЎРїРёСЃРѕРє Р°С‚СЂРёР±СѓС‚РѕРІ РґР»СЏ plan cache key:
 -- https://docs.microsoft.com/ru-ru/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-plan-attributes-transact-sql?view=sql-server-ver15
 
 SELECT pa.*
@@ -23,7 +23,7 @@ FROM (SELECT TOP(1) plan_handle FROM sys.dm_exec_cached_plans) AS cp
 CROSS APPLY sys.dm_exec_plan_attributes(cp.plan_handle) AS pa
 WHERE is_cache_key = 1;
 
--- 4. Проверка количества доступной целевой памяти
+-- 4. РџСЂРѕРІРµСЂРєР° РєРѕР»РёС‡РµСЃС‚РІР° РґРѕСЃС‚СѓРїРЅРѕР№ С†РµР»РµРІРѕР№ РїР°РјСЏС‚Рё
 SELECT visible_target_kb FROM sys.dm_os_sys_info;
 
 -- 5. cost information about query plans in the SQL Plans and Object Plans plan cache stores.
@@ -39,17 +39,17 @@ AND e.type IN ('CACHESTORE_SQLCP','CACHESTORE_OBJCP')
 ORDER BY e.[type], p.objtype, e.current_cost DESC
 
 
--- 6. Очистка кэша с помощью DBCC FREEPROCCACHE
+-- 6. РћС‡РёСЃС‚РєР° РєСЌС€Р° СЃ РїРѕРјРѕС‰СЊСЋ DBCC FREEPROCCACHE
 SELECT COUNT(*) AS plan_count 
 FROM sys.dm_exec_cached_plans;
 
--- Удаляет все элементы / записи из кэша планов
+-- РЈРґР°Р»СЏРµС‚ РІСЃРµ СЌР»РµРјРµРЅС‚С‹ / Р·Р°РїРёСЃРё РёР· РєСЌС€Р° РїР»Р°РЅРѕРІ
 DBCC FREEPROCCACHE;
 
--- Удаляет все неиспользуемые элементы из всех кэшей.
-DBCC FREESYSTEMCACHE ('ALL');  -- Ключевое слово ALL указывает все поддерживаемые кэши.
+-- РЈРґР°Р»СЏРµС‚ РІСЃРµ РЅРµРёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ СЌР»РµРјРµРЅС‚С‹ РёР· РІСЃРµС… РєСЌС€РµР№.
+DBCC FREESYSTEMCACHE ('ALL');  -- РљР»СЋС‡РµРІРѕРµ СЃР»РѕРІРѕ ALL СѓРєР°Р·С‹РІР°РµС‚ РІСЃРµ РїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Рµ РєСЌС€Рё.
 
--- Освобождение записей из кэшей после прекращения их использования
+-- РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ Р·Р°РїРёСЃРµР№ РёР· РєСЌС€РµР№ РїРѕСЃР»Рµ РїСЂРµРєСЂР°С‰РµРЅРёСЏ РёС… РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ
 DBCC FREESYSTEMCACHE ('ALL') WITH MARK_IN_USE_FOR_REMOVAL;  
 
 SELECT COUNT(*) AS plan_count 
@@ -57,7 +57,7 @@ FROM sys.dm_exec_cached_plans;
 
 
 
--- 7. Adhoc кэш
+-- 7. Adhoc РєСЌС€
 
 SELECT objtype, cacheobjtype, 
   AVG(usecounts) AS Avg_UseCount, 
@@ -68,12 +68,12 @@ WHERE objtype = 'Adhoc' AND usecounts = 1
 GROUP BY objtype, cacheobjtype;
 
 
--- 8. Рекомпиляция хранимой процедуры
--- 8.1. Выполнить ХП  -> пустой результирующий набор
+-- 8. Р РµРєРѕРјРїРёР»СЏС†РёСЏ С…СЂР°РЅРёРјРѕР№ РїСЂРѕС†РµРґСѓСЂС‹
+-- 8.1. Р’С‹РїРѕР»РЅРёС‚СЊ РҐРџ  -> РїСѓСЃС‚РѕР№ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёР№ РЅР°Р±РѕСЂ
 EXECUTE dbo.uspGetOrderTrackingBySalesOrderID @SalesOrderId = 100;
 
--- 8.2. Закэшированный план для uspGetOrderTrackingBySalesOrderID
--- Значение XML -> графический план запроса .sqlplan
+-- 8.2. Р—Р°РєСЌС€РёСЂРѕРІР°РЅРЅС‹Р№ РїР»Р°РЅ РґР»СЏ uspGetOrderTrackingBySalesOrderID
+-- Р—РЅР°С‡РµРЅРёРµ XML -> РіСЂР°С„РёС‡РµСЃРєРёР№ РїР»Р°РЅ Р·Р°РїСЂРѕСЃР° .sqlplan
 SELECT p.objtype, p.bucketid, p.plan_handle, qp.query_plan, pa.value AS set_options, st.[text]
 FROM sys.dm_exec_cached_plans AS p
 CROSS APPLY sys.dm_exec_query_plan(p.plan_handle) AS qp
@@ -82,16 +82,16 @@ CROSS APPLY sys.dm_exec_plan_attributes(p.plan_handle) AS pa
 WHERE st.objectid = object_id('uspGetOrderTrackingBySalesOrderID')
 AND pa.attribute = 'set_options';
 
--- 8.3 Изменение свойств сессии. ARITHABORT = 1 - Завершает запрос, если во время выполнения возникает ошибка переполнения или деления на ноль.
+-- 8.3 РР·РјРµРЅРµРЅРёРµ СЃРІРѕР№СЃС‚РІ СЃРµСЃСЃРёРё. ARITHABORT = 1 - Р—Р°РІРµСЂС€Р°РµС‚ Р·Р°РїСЂРѕСЃ, РµСЃР»Рё РІРѕ РІСЂРµРјСЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РІРѕР·РЅРёРєР°РµС‚ РѕС€РёР±РєР° РїРµСЂРµРїРѕР»РЅРµРЅРёСЏ РёР»Рё РґРµР»РµРЅРёСЏ РЅР° РЅРѕР»СЊ.
 SELECT SESSIONPROPERTY('ARITHABORT'); -- should return 1
 SET ARITHABORT OFF;
 SELECT SESSIONPROPERTY('ARITHABORT'); -- should return 0
 
--- 8.4. Снова выполнить ХП  -> пустой результирующий набор
+-- 8.4. РЎРЅРѕРІР° РІС‹РїРѕР»РЅРёС‚СЊ РҐРџ  -> РїСѓСЃС‚РѕР№ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёР№ РЅР°Р±РѕСЂ
 EXECUTE dbo.uspGetOrderTrackingBySalesOrderID @SalesOrderId = 100;
 
--- 8.5 Два закэшированных плана для uspGetOrderTrackingBySalesOrderID
--- различные plan_handle и set_options, но одинаковый bucketid
+-- 8.5 Р”РІР° Р·Р°РєСЌС€РёСЂРѕРІР°РЅРЅС‹С… РїР»Р°РЅР° РґР»СЏ uspGetOrderTrackingBySalesOrderID
+-- СЂР°Р·Р»РёС‡РЅС‹Рµ plan_handle Рё set_options, РЅРѕ РѕРґРёРЅР°РєРѕРІС‹Р№ bucketid
 
 SELECT p.objtype, p.bucketid, p.plan_handle, qp.query_plan, pa.value AS set_options, st.[text]
 FROM sys.dm_exec_cached_plans AS p
@@ -105,39 +105,39 @@ AND pa.attribute = 'set_options';
 -- 8.6. sp_recompile
 EXECUTE sp_recompile 'dbo.uspGetOrderTrackingBySalesOrderID';
 
--- 8.7. При выполнении кода в 8.5 планов кэширования не будет. 
+-- 8.7. РџСЂРё РІС‹РїРѕР»РЅРµРЅРёРё РєРѕРґР° РІ 8.5 РїР»Р°РЅРѕРІ РєСЌС€РёСЂРѕРІР°РЅРёСЏ РЅРµ Р±СѓРґРµС‚. 
 
 
--- 9. Автоматический подбор параметров (auto-parameterization)
+-- 9. РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№ РїРѕРґР±РѕСЂ РїР°СЂР°РјРµС‚СЂРѕРІ (auto-parameterization)
 -- 9.1. ad-hoc T-SQL statement which will be auto-parameterized.
 SELECT SalesOrderID, OrderDate FROM Sales.SalesOrderHeader 
 WHERE SalesOrderID = 43683;
 
--- 9.2. Закэшированный план 
--- Содержит только SELECT operator.
--- Просмотреть SELECT как XML - Show Execution Plan XML.
--- "ParameterizedText" - план запроса с параметром.
--- "ParameterizedPlanHandle" ссылается на другой дескриптор плана
+-- 9.2. Р—Р°РєСЌС€РёСЂРѕРІР°РЅРЅС‹Р№ РїР»Р°РЅ 
+-- РЎРѕРґРµСЂР¶РёС‚ С‚РѕР»СЊРєРѕ SELECT operator.
+-- РџСЂРѕСЃРјРѕС‚СЂРµС‚СЊ SELECT РєР°Рє XML - Show Execution Plan XML.
+-- "ParameterizedText" - РїР»Р°РЅ Р·Р°РїСЂРѕСЃР° СЃ РїР°СЂР°РјРµС‚СЂРѕРј.
+-- "ParameterizedPlanHandle" СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РґСЂСѓРіРѕР№ РґРµСЃРєСЂРёРїС‚РѕСЂ РїР»Р°РЅР°
 SELECT p.objtype, p.bucketid, p.plan_handle, qp.query_plan, st.[text]
 FROM sys.dm_exec_cached_plans AS p
 CROSS APPLY sys.dm_exec_query_plan(p.plan_handle) AS qp
 CROSS APPLY sys.dm_exec_sql_text(p.plan_handle) AS st 
 WHERE st.[text] LIKE 'SELECT SalesOrderID, OrderDate FROM Sales.SalesOrderHeader%';
 
--- 9.3. "ParameterizedPlanHandle" - подставить значение
--- Изучить основной план запроса
+-- 9.3. "ParameterizedPlanHandle" - РїРѕРґСЃС‚Р°РІРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ
+-- РР·СѓС‡РёС‚СЊ РѕСЃРЅРѕРІРЅРѕР№ РїР»Р°РЅ Р·Р°РїСЂРѕСЃР°
 SELECT query_plan FROM sys.dm_exec_query_plan(0x06000700DAF5B008C0F0EA844501000001000000000000000000000000000000000000000000000000000000);
 
 
--- 10. sys.dm_exec_cached_plans: Возвращает строку для каждого плана запроса, кэшируемого SQL Server
--- refcounts > 1 - Число объектов кэша, ссылающихся на данный объект кэша. 
+-- 10. sys.dm_exec_cached_plans: Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃС‚СЂРѕРєСѓ РґР»СЏ РєР°Р¶РґРѕРіРѕ РїР»Р°РЅР° Р·Р°РїСЂРѕСЃР°, РєСЌС€РёСЂСѓРµРјРѕРіРѕ SQL Server
+-- refcounts > 1 - Р§РёСЃР»Рѕ РѕР±СЉРµРєС‚РѕРІ РєСЌС€Р°, СЃСЃС‹Р»Р°СЋС‰РёС…СЃСЏ РЅР° РґР°РЅРЅС‹Р№ РѕР±СЉРµРєС‚ РєСЌС€Р°. 
 SELECT plan_handle, refcounts, usecounts, size_in_bytes, cacheobjtype, objtype   
 FROM sys.dm_exec_cached_plans;  
 GO  
 
 
--- 11. sys.dm_exec_text_query_plan: Возвращает инструкцию Showplan в текстовом формате 
--- аналог sys.dm_exec_query_plan
+-- 11. sys.dm_exec_text_query_plan: Р’РѕР·РІСЂР°С‰Р°РµС‚ РёРЅСЃС‚СЂСѓРєС†РёСЋ Showplan РІ С‚РµРєСЃС‚РѕРІРѕРј С„РѕСЂРјР°С‚Рµ 
+-- Р°РЅР°Р»РѕРі sys.dm_exec_query_plan
 SELECT * FROM sys.dm_exec_requests  
 WHERE session_id = 55; 
 

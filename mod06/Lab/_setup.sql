@@ -1,7 +1,7 @@
 USE AdventureWorks;
 GO
 
--- Предварительное удаление объектов
+-- РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕРµ СѓРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ
 IF OBJECT_ID(N'[FK_Campaign_SalesTerritory]') IS NOT NULL
 BEGIN
 ALTER TABLE Proseware.Campaign
@@ -23,7 +23,7 @@ DROP SCHEMA IF EXISTS Proseware;
 GO
 -------
 
--- Создание объектов для ЛР6
+-- РЎРѕР·РґР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ РґР»СЏ Р›Р 6
 CREATE SCHEMA Proseware;
 GO
 
@@ -110,7 +110,7 @@ GO
 ALTER TABLE Proseware.WebResponse CHECK CONSTRAINT FK_WebResponse_CampaignAdvert
 GO
 
--- Вставка данных из файла webresponse.dat
+-- Р’СЃС‚Р°РІРєР° РґР°РЅРЅС‹С… РёР· С„Р°Р№Р»Р° webresponse.dat
 
 BULK INSERT AdventureWorks.Proseware.WebResponse 
 FROM N'..\Tuning-SqlServer-Databases\mod06\Lab\webresponse.dat'
@@ -119,11 +119,11 @@ WITH ( DATAFILETYPE = 'native',
 	   TABLOCK
 	);
 
--- Обновить статистику
+-- РћР±РЅРѕРІРёС‚СЊ СЃС‚Р°С‚РёСЃС‚РёРєСѓ
 UPDATE STATISTICS Proseware.WebResponse[PK_WebResponse]
 GO
 
--- Создать индекс на CampaignAdvertID и обновить статистику
+-- РЎРѕР·РґР°С‚СЊ РёРЅРґРµРєСЃ РЅР° CampaignAdvertID Рё РѕР±РЅРѕРІРёС‚СЊ СЃС‚Р°С‚РёСЃС‚РёРєСѓ
 
 CREATE INDEX IX_WebResponse_CampaignAdvertID ON Proseware.WebResponse (CampaignAdvertID)
 GO

@@ -1,5 +1,5 @@
 -------------------------------------------------------
--- 1. Проанализируйте структуру страниц таблицы Person.ContactType базы данных AdventureWorks.
+-- 1. РџСЂРѕР°РЅР°Р»РёР·РёСЂСѓР№С‚Рµ СЃС‚СЂСѓРєС‚СѓСЂСѓ СЃС‚СЂР°РЅРёС† С‚Р°Р±Р»РёС†С‹ Person.ContactType Р±Р°Р·С‹ РґР°РЅРЅС‹С… AdventureWorks.
 -------------------------------------------------------
 
 USE AdventureWorks;
@@ -12,14 +12,14 @@ allocated_page_file_id, allocated_page_page_id, page_type, page_type_desc
 FROM sys.dm_db_database_page_allocations(db_id('AdventureWorks'), object_id('Person.ContactType'),NULL,NUll,'DETAILED');
 GO
 
--- Четыре страницы: 2 IAM pages, index page, data page (page_type_desc). 
--- Значение в столбце allocated_page_page_id column для DATA_PAGE
+-- Р§РµС‚С‹СЂРµ СЃС‚СЂР°РЅРёС†С‹: 2 IAM pages, index page, data page (page_type_desc). 
+-- Р—РЅР°С‡РµРЅРёРµ РІ СЃС‚РѕР»Р±С†Рµ allocated_page_page_id column РґР»СЏ DATA_PAGE
 
 
 -------------------------------------------------------
--- 2. Проанализируйте структуру записей таблицы Person.Contact
--- Включите флаг trace flag 3604
--- Добавьте в DBCC PAGE значение allocated_page_page_id для DATA_PAGE
+-- 2. РџСЂРѕР°РЅР°Р»РёР·РёСЂСѓР№С‚Рµ СЃС‚СЂСѓРєС‚СѓСЂСѓ Р·Р°РїРёСЃРµР№ С‚Р°Р±Р»РёС†С‹ Person.Contact
+-- Р’РєР»СЋС‡РёС‚Рµ С„Р»Р°Рі trace flag 3604
+-- Р”РѕР±Р°РІСЊС‚Рµ РІ DBCC PAGE Р·РЅР°С‡РµРЅРёРµ allocated_page_page_id РґР»СЏ DATA_PAGE
 -------------------------------------------------------
 
 DBCC TRACEON(3604);

@@ -4,37 +4,37 @@
 USE AdventureWorks;
 GO
 
--- Запрос 1
--- Открытие транзакции и UPDATE номер телефона
+-- Р—Р°РїСЂРѕСЃ 1
+-- РћС‚РєСЂС‹С‚РёРµ С‚СЂР°РЅР·Р°РєС†РёРё Рё UPDATE РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°
 BEGIN TRANSACTION
 	UPDATE [Sales].[CustomerPII]
 	SET [PhoneNumber] = N'999-999-9999'
 	WHERE CustomerID = 19169;
 
--- Запрос 2
+-- Р—Р°РїСЂРѕСЃ 2
 ROLLBACK;
 
--- Запрос 3
+-- Р—Р°РїСЂРѕСЃ 3
 UPDATE [Sales].[CustomerPII]
 SET [PhoneNumber] = N'333-333-3333'
 WHERE CustomerID = 19169;
 
--- Запрос 4
+-- Р—Р°РїСЂРѕСЃ 4
 UPDATE [Sales].[CustomerPII]
 SET [PhoneNumber] = N'444-444-4444'
 WHERE CustomerID = 19169;
 
--- Запрос 5 - добавление новой строки
+-- Р—Р°РїСЂРѕСЃ 5 - РґРѕР±Р°РІР»РµРЅРёРµ РЅРѕРІРѕР№ СЃС‚СЂРѕРєРё
 INSERT [Sales].[CustomerPII]
 ([CustomerID], FirstName, LastName, SSN, [CreditCardNumber], EmailAddress, PhoneNumber, TerritoryID)
 VALUES (1, 'Anna', 'Ivanova', NULL, NULL, 'anna_i@gmail.com', 
 N'111-555-1111', 1);
 
--- Запрос 6
+-- Р—Р°РїСЂРѕСЃ 6
 BEGIN TRANSACTION
 	UPDATE [Sales].[CustomerPII]
 	SET [PhoneNumber] = N'616-666-6666'
 	WHERE CustomerID = 19169;
 
--- Запрос 7
+-- Р—Р°РїСЂРѕСЃ 7
 COMMIT

@@ -1,24 +1,24 @@
 USE AdventureWorks;
 GO
 
--- 1. Оцените план следующего запроса
+-- 1. РћС†РµРЅРёС‚Рµ РїР»Р°РЅ СЃР»РµРґСѓСЋС‰РµРіРѕ Р·Р°РїСЂРѕСЃР°
 SELECT BusinessEntityID, NationalIDNumber, LoginID, HireDate, JobTitle
 FROM HumanResources.Employee
 WHERE NationalIDNumber = 14417807;
 
--- 2. Перепишите запрос, чтобы избежать предупреждений в SELECT на Плане
+-- 2. РџРµСЂРµРїРёС€РёС‚Рµ Р·Р°РїСЂРѕСЃ, С‡С‚РѕР±С‹ РёР·Р±РµР¶Р°С‚СЊ РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёР№ РІ SELECT РЅР° РџР»Р°РЅРµ
 
 SELECT BusinessEntityID, NationalIDNumber, LoginID, HireDate, JobTitle
 FROM HumanResources.Employee
 WHERE NationalIDNumber = '14417807';
 
--- 3. Измените тип данных столбца NationalIDNumber таблицы HumanResources.Employee на INT
+-- 3. РР·РјРµРЅРёС‚Рµ С‚РёРї РґР°РЅРЅС‹С… СЃС‚РѕР»Р±С†Р° NationalIDNumber С‚Р°Р±Р»РёС†С‹ HumanResources.Employee РЅР° INT
 
 ALTER TABLE [HumanResources].[Employee] 
 ALTER COLUMN [NationalIDNumber] INT NOT NULL;
 
--- 4. Столбец NationalIDNumber является частью некластерного индекса [AK_Employee_NationalIDNumber]. 
--- Удалите индекс, измените тип данных столбца, заново создайте индекс
+-- 4. РЎС‚РѕР»Р±РµС† NationalIDNumber СЏРІР»СЏРµС‚СЃСЏ С‡Р°СЃС‚СЊСЋ РЅРµРєР»Р°СЃС‚РµСЂРЅРѕРіРѕ РёРЅРґРµРєСЃР° [AK_Employee_NationalIDNumber]. 
+-- РЈРґР°Р»РёС‚Рµ РёРЅРґРµРєСЃ, РёР·РјРµРЅРёС‚Рµ С‚РёРї РґР°РЅРЅС‹С… СЃС‚РѕР»Р±С†Р°, Р·Р°РЅРѕРІРѕ СЃРѕР·РґР°Р№С‚Рµ РёРЅРґРµРєСЃ
 
 DROP INDEX [AK_Employee_NationalIDNumber] ON [HumanResources].[Employee]
 GO

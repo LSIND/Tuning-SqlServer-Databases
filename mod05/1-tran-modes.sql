@@ -5,7 +5,7 @@ SELECT * FROM [Production].[Product];
 PRINT @@TRANCOUNT;
 
 
--- II. Явные транзакции
+-- II. РЇРІРЅС‹Рµ С‚СЂР°РЅР·Р°РєС†РёРё
 
 DROP TABLE IF EXISTS dbo.TestTable;
 
@@ -19,30 +19,30 @@ GO
 -- TRUNCATE TABLE dbo.TestTable
  
 BEGIN TRANSACTION  
-   -- 1. Вставка одной строки данных
+   -- 1. Р’СЃС‚Р°РІРєР° РѕРґРЅРѕР№ СЃС‚СЂРѕРєРё РґР°РЅРЅС‹С…
    INSERT INTO dbo.TestTable( Id, [Value] )
    VALUES  ( 1, '10')
 
-   -- 2. Точка сохранения First
+   -- 2. РўРѕС‡РєР° СЃРѕС…СЂР°РЅРµРЅРёСЏ First
    SAVE TRANSACTION [First]
 
-   -- 3. Вставка еще одной строки данных
+   -- 3. Р’СЃС‚Р°РІРєР° РµС‰Рµ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРё РґР°РЅРЅС‹С…
    INSERT INTO dbo.TestTable( Id, [Value] )
    VALUES  ( 2, '20')
  
-   -- 4. Откат до точки восстановления [First]
+   -- 4. РћС‚РєР°С‚ РґРѕ С‚РѕС‡РєРё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ [First]
    ROLLBACK TRANSACTION [First]
 
-   -- 5. Одна строка в таблице
+   -- 5. РћРґРЅР° СЃС‚СЂРѕРєР° РІ С‚Р°Р±Р»РёС†Рµ
    SELECT * FROM dbo.TestTable
 
--- 6. Фиксация транзакции с одной строкой данных
+-- 6. Р¤РёРєСЃР°С†РёСЏ С‚СЂР°РЅР·Р°РєС†РёРё СЃ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРѕР№ РґР°РЅРЅС‹С…
 COMMIT
 
 DROP TABLE IF EXISTS dbo.TestTable;
 
--- III. Неявные транзакции
--- SET IMPLICIT_TRANSACTIONS - Устанавливает неявный режим BEGIN TRANSACTION для сессии
+-- III. РќРµСЏРІРЅС‹Рµ С‚СЂР°РЅР·Р°РєС†РёРё
+-- SET IMPLICIT_TRANSACTIONS - РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РЅРµСЏРІРЅС‹Р№ СЂРµР¶РёРј BEGIN TRANSACTION РґР»СЏ СЃРµСЃСЃРёРё
 
 SET IMPLICIT_TRANSACTIONS ON;
 GO

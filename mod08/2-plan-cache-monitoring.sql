@@ -1,8 +1,8 @@
 USE AdventureWorks;
 GO
 
--- 1. Суммарная статистика производительности для кэшированных планов запросов
--- creation_time (datetime) - Время компиляции плана.
+-- 1. РЎСѓРјРјР°СЂРЅР°СЏ СЃС‚Р°С‚РёСЃС‚РёРєР° РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё РґР»СЏ РєСЌС€РёСЂРѕРІР°РЅРЅС‹С… РїР»Р°РЅРѕРІ Р·Р°РїСЂРѕСЃРѕРІ
+-- creation_time (datetime) - Р’СЂРµРјСЏ РєРѕРјРїРёР»СЏС†РёРё РїР»Р°РЅР°.
 SELECT * FROM sys.dm_exec_query_stats;
 
 -- 2. Extended Events; The sql_statement_recompile event tracks recompiles at statement level; an event is logged each time a statement is recompiled. The reason for recompilation is provided in the recompile_cause column.
@@ -10,7 +10,7 @@ SELECT * FROM sys.dm_xe_object_columns
 WHERE object_name='sql_statement_recompile';
 
 -- PLAN CACHE BLOAT
--- 3. Количество и размер планов, которые были использованы 1 раз
+-- 3. РљРѕР»РёС‡РµСЃС‚РІРѕ Рё СЂР°Р·РјРµСЂ РїР»Р°РЅРѕРІ, РєРѕС‚РѕСЂС‹Рµ Р±С‹Р»Рё РёСЃРїРѕР»СЊР·РѕРІР°РЅС‹ 1 СЂР°Р·
 SELECT objtype, cacheobjtype, COUNT(*) AS single_use_plans, SUM(size_in_bytes) / 1024.0 / 1024.0 AS size_in_mb
 FROM sys.dm_exec_cached_plans
 CROSS APPLY sys.dm_exec_sql_text(plan_handle)
@@ -19,20 +19,20 @@ AND usecounts = 1
 GROUP BY objtype, cacheobjtype;
 
 
--- 4. Поиск планов для похожих запросов
+-- 4. РџРѕРёСЃРє РїР»Р°РЅРѕРІ РґР»СЏ РїРѕС…РѕР¶РёС… Р·Р°РїСЂРѕСЃРѕРІ
 WITH planCTE
 AS
 (
 SELECT query_hash, MAX(plan_handle) AS plan_handle, COUNT(*) AS cnt
 FROM sys.dm_exec_query_stats
 GROUP BY query_hash
-HAVING COUNT(*) > 0 -- Можно изменить значение
+HAVING COUNT(*) > 0 -- РњРѕР¶РЅРѕ РёР·РјРµРЅРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ
 )
 SELECT p.* , st.[text]
 FROM planCTE AS p
 CROSS APPLY sys.dm_exec_sql_text(p.plan_handle) AS st;
 
--- 5. Размер планов в кб
+-- 5. Р Р°Р·РјРµСЂ РїР»Р°РЅРѕРІ РІ РєР±
 
 SELECT creation_time, last_grant_kb, st.[text]
 FROM sys.dm_exec_query_stats AS p

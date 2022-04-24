@@ -1,11 +1,10 @@
-
--- 1. Включение Query Store с опциями
+-- 1. Р’РєР»СЋС‡РµРЅРёРµ Query Store СЃ РѕРїС†РёСЏРјРё
 USE master;
 GO
 ALTER DATABASE AdventureWorks
 SET QUERY_STORE = ON;
 
--- 2. Изменение опций Query Store
+-- 2. РР·РјРµРЅРµРЅРёРµ РѕРїС†РёР№ Query Store
 USE master;
 GO
 ALTER DATABASE AdventureWorks
@@ -20,12 +19,12 @@ SET QUERY_STORE = ON
 	  MAX_PLANS_PER_QUERY = 200
     );
 
--- 3. Просмотр опций Query Store
+-- 3. РџСЂРѕСЃРјРѕС‚СЂ РѕРїС†РёР№ Query Store
 USE AdventureWorks;
 GO
 SELECT * FROM sys.database_query_store_options;
 
--- 5. Отключение
+-- 5. РћС‚РєР»СЋС‡РµРЅРёРµ
 USE master;
 GO
 ALTER DATABASE AdventureWorks
@@ -33,56 +32,56 @@ SET QUERY_STORE = OFF;
 GO
 
 
--- 5. Включение Query Store для БД TSQL
+-- 5. Р’РєР»СЋС‡РµРЅРёРµ Query Store РґР»СЏ Р‘Р” TSQL
 USE master;
 GO
 
 ALTER DATABASE [TSQL] SET QUERY_STORE = ON;
 
--- 5.1 Очистка данных Query Store
+-- 5.1 РћС‡РёСЃС‚РєР° РґР°РЅРЅС‹С… Query Store
 ALTER DATABASE [TSQL] SET QUERY_STORE CLEAR;
 
--- 5.2 Изменение опций (минимальные интервалы)
--- INTERVAL_LENGTH_MINUTES = Интервал агрегирования статистики в минутах (1, 5, 10, 15, 30, 60 или 1440). По умолчанию — 60 минут.
--- DATA_FLUSH_INTERVAL_SECONDS = Период регулярного сброса данных хранилища запросов на диск в секундах. По умолчанию - 900 секунд (15 мин.)
+-- 5.2 РР·РјРµРЅРµРЅРёРµ РѕРїС†РёР№ (РјРёРЅРёРјР°Р»СЊРЅС‹Рµ РёРЅС‚РµСЂРІР°Р»С‹)
+-- INTERVAL_LENGTH_MINUTES = РРЅС‚РµСЂРІР°Р» Р°РіСЂРµРіРёСЂРѕРІР°РЅРёСЏ СЃС‚Р°С‚РёСЃС‚РёРєРё РІ РјРёРЅСѓС‚Р°С… (1, 5, 10, 15, 30, 60 РёР»Рё 1440). РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ вЂ” 60 РјРёРЅСѓС‚.
+-- DATA_FLUSH_INTERVAL_SECONDS = РџРµСЂРёРѕРґ СЂРµРіСѓР»СЏСЂРЅРѕРіРѕ СЃР±СЂРѕСЃР° РґР°РЅРЅС‹С… С…СЂР°РЅРёР»РёС‰Р° Р·Р°РїСЂРѕСЃРѕРІ РЅР° РґРёСЃРє РІ СЃРµРєСѓРЅРґР°С…. РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - 900 СЃРµРєСѓРЅРґ (15 РјРёРЅ.)
 ALTER DATABASE [TSQL] SET QUERY_STORE (INTERVAL_LENGTH_MINUTES = 1, DATA_FLUSH_INTERVAL_SECONDS = 60)
 
--- 5.3. Запустить нагрузку load_script1.sql (время выполнения ~ 60 минут)
+-- 5.3. Р—Р°РїСѓСЃС‚РёС‚СЊ РЅР°РіСЂСѓР·РєСѓ load_script1.sql (РІСЂРµРјСЏ РІС‹РїРѕР»РЅРµРЅРёСЏ ~ 60 РјРёРЅСѓС‚)
 
--- 5.4 В Object Explorer -> Свойства БД TSQL -> Query Store -> Operation Mode = Read Write
+-- 5.4 Р’ Object Explorer -> РЎРІРѕР№СЃС‚РІР° Р‘Р” TSQL -> Query Store -> Operation Mode = Read Write
 
--- 5.5 Увеличить размер хранилища Query Store 
+-- 5.5 РЈРІРµР»РёС‡РёС‚СЊ СЂР°Р·РјРµСЂ С…СЂР°РЅРёР»РёС‰Р° Query Store 
 ALTER DATABASE [TSQL]
 SET QUERY_STORE (MAX_STORAGE_SIZE_MB = 150);
 
--- 5.6 Отчет Overall Resource Consumption
+-- 5.6 РћС‚С‡РµС‚ Overall Resource Consumption
 -- Configure -> Time Interval = Last Hour, agg in Minutes
--- query id (x-axis графика)
+-- query id (x-axis РіСЂР°С„РёРєР°)
 
--- 5.7 Отчет Tracked Queries
--- В поиск ввести query id из п.5.6. -> История планов для запроса
+-- 5.7 РћС‚С‡РµС‚ Tracked Queries
+-- Р’ РїРѕРёСЃРє РІРІРµСЃС‚Рё query id РёР· Рї.5.6. -> РСЃС‚РѕСЂРёСЏ РїР»Р°РЅРѕРІ РґР»СЏ Р·Р°РїСЂРѕСЃР°
 
 
--- 6. Доп нагрузка: создать временную таблицу ##wideplan
+-- 6. Р”РѕРї РЅР°РіСЂСѓР·РєР°: СЃРѕР·РґР°С‚СЊ РІСЂРµРјРµРЅРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ ##wideplan
 CREATE TABLE ##wideplan (id INT);
 
--- 6.1 В два раза увеличить количество строк в Sales.Orders 
--- Произойдет обновление статистики и будет создан новый план запроса
+-- 6.1 Р’ РґРІР° СЂР°Р·Р° СѓРІРµР»РёС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РІ Sales.Orders 
+-- РџСЂРѕРёР·РѕР№РґРµС‚ РѕР±РЅРѕРІР»РµРЅРёРµ СЃС‚Р°С‚РёСЃС‚РёРєРё Рё Р±СѓРґРµС‚ СЃРѕР·РґР°РЅ РЅРѕРІС‹Р№ РїР»Р°РЅ Р·Р°РїСЂРѕСЃР°
 INSERT INTO TSQL.Sales.Orders (custid,empid,orderdate,requireddate,shippeddate,shipperid,freight,shipname,shipaddress,shipcity,shipregion,shippostalcode,shipcountry)
 SELECT custid,empid,orderdate,requireddate,shippeddate,shipperid,freight,shipname,shipaddress,shipcity,shipregion,shippostalcode,shipcountry
 FROM TSQL.Sales.Orders
 
--- 6.2 Обновить отчет Tracked Queries: скомпилирован новый план
+-- 6.2 РћР±РЅРѕРІРёС‚СЊ РѕС‚С‡РµС‚ Tracked Queries: СЃРєРѕРјРїРёР»РёСЂРѕРІР°РЅ РЅРѕРІС‹Р№ РїР»Р°РЅ
 
--- 6.3 Отчет Regressed Queries
+-- 6.3 РћС‚С‡РµС‚ Regressed Queries
 -- Configure -> Time Interval = Last 5 minutes: ALL
 
--- 6.4 Отчет Tracked Queries 
--- Выбрать план запроса (точка) и нажать Force Plan.
+-- 6.4 РћС‚С‡РµС‚ Tracked Queries 
+-- Р’С‹Р±СЂР°С‚СЊ РїР»Р°РЅ Р·Р°РїСЂРѕСЃР° (С‚РѕС‡РєР°) Рё РЅР°Р¶Р°С‚СЊ Force Plan.
 
--- 6.5 Обновить отчет Top Resource Consumers - планы были форсированы V
+-- 6.5 РћР±РЅРѕРІРёС‚СЊ РѕС‚С‡РµС‚ Top Resource Consumers - РїР»Р°РЅС‹ Р±С‹Р»Рё С„РѕСЂСЃРёСЂРѕРІР°РЅС‹ V
 
--- 6.6 Отчет Tracked Queries -> Unforce
+-- 6.6 РћС‚С‡РµС‚ Tracked Queries -> Unforce
 
--- 6.7 Остановить нагрузку
+-- 6.7 РћСЃС‚Р°РЅРѕРІРёС‚СЊ РЅР°РіСЂСѓР·РєСѓ
 CREATE TABLE ##stopload (id int)

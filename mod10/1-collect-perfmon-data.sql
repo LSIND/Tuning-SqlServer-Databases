@@ -1,7 +1,6 @@
+-- 1. РЎРѕР·РґР°С‚СЊ Р‘Р” baseline: SIZE = 8192KB, FILEGROWTH = 2048KB; Log - SIZE = 2048KB, FILEGROWTH = 512KB
 
--- 1. Создать БД baseline: SIZE = 8192KB, FILEGROWTH = 2048KB; Log - SIZE = 2048KB, FILEGROWTH = 512KB
-
--- 2. Создать работу CollectPerfMonData job SQL Server Agent
+-- 2. РЎРѕР·РґР°С‚СЊ СЂР°Р±РѕС‚Сѓ CollectPerfMonData job SQL Server Agent
 
 USE [msdb]
 GO
@@ -45,6 +44,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'collect_
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'TSQL', 
 		@command=N'USE [Baseline];
+		
 GO
 
 SET NOCOUNT ON;
@@ -119,9 +119,9 @@ EndSave:
 
 GO
 
--- 3. Запустить рабочую нагрузку 
+-- 3. Р—Р°РїСѓСЃС‚РёС‚СЊ СЂР°Р±РѕС‡СѓСЋ РЅР°РіСЂСѓР·РєСѓ 
 
--- 4. Анализ запросов
+-- 4. РђРЅР°Р»РёР· Р·Р°РїСЂРѕСЃРѕРІ
 
 -- Step 1 - CPU usage trend
 select CPUCount.[Counter], CPUCount.[logTime],
@@ -157,7 +157,7 @@ WHERE [Counter] like '%Page reads/sec%'
 ORDER BY [logTime];
 
 
--- 5. Удалить работу и базу baseline
+-- 5. РЈРґР°Р»РёС‚СЊ СЂР°Р±РѕС‚Сѓ Рё Р±Р°Р·Сѓ baseline
 USE [msdb]
 GO
 

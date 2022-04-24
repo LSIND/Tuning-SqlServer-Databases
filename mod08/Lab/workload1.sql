@@ -1,5 +1,5 @@
 -- load generation script 1
--- цикл на 60 минут, либо при создании таблицы ##stopload
+-- С†РёРєР» РЅР° 60 РјРёРЅСѓС‚, Р»РёР±Рѕ РїСЂРё СЃРѕР·РґР°РЅРёРё С‚Р°Р±Р»РёС†С‹ ##stopload
 DROP TABLE IF EXISTS ##stopload;
 
 USE AdventureWorks;

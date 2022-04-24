@@ -1,4 +1,3 @@
-
 -- 1. Default Trace
 SELECT * FROM sys.configurations WHERE name =
 'default trace enabled';

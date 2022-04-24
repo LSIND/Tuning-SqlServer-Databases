@@ -1,6 +1,6 @@
--- 1. Откройте файл PM 1-perf-counters-disk.PerfmonCfg
+-- 1. РћС‚РєСЂРѕР№С‚Рµ С„Р°Р№Р» PM 1-perf-counters-disk.PerfmonCfg
 
--- 2. Создайте таблицу insertTargetEx и заполните ее данными в цикле
+-- 2. РЎРѕР·РґР°Р№С‚Рµ С‚Р°Р±Р»РёС†Сѓ insertTargetEx Рё Р·Р°РїРѕР»РЅРёС‚Рµ РµРµ РґР°РЅРЅС‹РјРё РІ С†РёРєР»Рµ
 
 USE AdventureWorks;
 GO
@@ -24,7 +24,7 @@ BEGIN
 END
 GO
 
--- 3. Вернитесь в PM и просмотрите работу диска
+-- 3. Р’РµСЂРЅРёС‚РµСЃСЊ РІ PM Рё РїСЂРѕСЃРјРѕС‚СЂРёС‚Рµ СЂР°Р±РѕС‚Сѓ РґРёСЃРєР°
 -- IOPS:
 ---- Physical Disk: Avg. Disk Bytes/Read
 ---- Physical Disk: Avg. Disk Bytes/Write
@@ -35,5 +35,5 @@ GO
 ---- Physical Disk: Avg. Disk sec/Read
 ---- Physical Disk: Avg. Disk sec/Write
 
--- 4. Удалите таблицу
+-- 4. РЈРґР°Р»РёС‚Рµ С‚Р°Р±Р»РёС†Сѓ
 DROP TABLE IF EXISTS dbo.insertTargetEx;

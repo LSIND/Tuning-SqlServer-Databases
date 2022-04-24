@@ -1,5 +1,5 @@
--- 1. Создание сессии [SqlStatementCompleted]  для сбора выполненных SQL-запросов. ON SERVER
--- выполняется под учетной записью A\A
+-- 1. РЎРѕР·РґР°РЅРёРµ СЃРµСЃСЃРёРё [SqlStatementCompleted] РґР»СЏ СЃР±РѕСЂР° РІС‹РїРѕР»РЅРµРЅРЅС‹С… SQL-Р·Р°РїСЂРѕСЃРѕРІ. ON SERVER
+-- РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РїРѕРґ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃСЊСЋ A\A
 
 CREATE EVENT SESSION SqlStatementCompleted ON SERVER
 ADD EVENT sqlserver.sql_statement_completed (
@@ -16,30 +16,30 @@ WITH (MAX_MEMORY=4096 KB,
 	STARTUP_STATE=OFF);
 GO
 
--- 2. Сессия серверная в sys.server_event_sessions
+-- 2. РЎРµСЃСЃРёСЏ СЃРµСЂРІРµСЂРЅР°СЏ РІ sys.server_event_sessions
 SELECT * FROM sys.server_event_sessions WHERE name = 'SqlStatementCompleted';
 SELECT * FROM sys.dm_xe_sessions WHERE name = 'SqlStatementCompleted';
 
--- 3. Запуск сессии 
+-- 3. Р—Р°РїСѓСЃРє СЃРµСЃСЃРёРё 
 ALTER EVENT SESSION SqlStatementCompleted ON SERVER
 	STATE=START
 GO
 
--- 4. Выполнение запросов
+-- 4. Р’С‹РїРѕР»РЅРµРЅРёРµ Р·Р°РїСЂРѕСЃРѕРІ
 SELECT 'sample extended events 1' AS v1;
 GO
 SELECT 'sample extended events 2' AS v2;
 GO
 
--- 5. Просмотр собранных данных: XML-формат
+-- 5. РџСЂРѕСЃРјРѕС‚СЂ СЃРѕР±СЂР°РЅРЅС‹С… РґР°РЅРЅС‹С…: XML-С„РѕСЂРјР°С‚
 SELECT CAST(target_data AS XML) AS xe_data
 FROM sys.dm_xe_session_targets AS st
 JOIN sys.dm_xe_sessions AS  s 
 ON st.event_session_address = s.address
 WHERE s.name = 'SqlStatementCompleted';
 
--- 6. Запрос к собранным данным в формате XML из п.5 
--- Информация о конкретном событии, запрос, длительность, дата начала
+-- 6. Р—Р°РїСЂРѕСЃ Рє СЃРѕР±СЂР°РЅРЅС‹Рј РґР°РЅРЅС‹Рј РІ С„РѕСЂРјР°С‚Рµ XML РёР· Рї.5 
+-- РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РєРѕРЅРєСЂРµС‚РЅРѕРј СЃРѕР±С‹С‚РёРё, Р·Р°РїСЂРѕСЃ, РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊ, РґР°С‚Р° РЅР°С‡Р°Р»Р°
 SELECT TOP (10) xa.xe_xml.query('.') AS xe_event,
 xa.xe_xml.value('(./data[@name="statement"]/value)[1]', 'nvarchar(MAX)') AS sql_statement,
 xa.xe_xml.value('(./data[@name="duration"]/value)[1]', 'bigint') AS duration_ms,
@@ -53,25 +53,25 @@ FROM	(	SELECT CAST(target_data AS XML) AS xe_data
 CROSS APPLY xe_data.nodes('//event') xa (xe_xml);
 
 -- 7. SSMS: Object Explorer -> Management -> Extended Events -> Sessions ->  SqlStatementCompleted 
--- Выбрать package0.ring_buffer: XML из п.5
+-- Р’С‹Р±СЂР°С‚СЊ package0.ring_buffer: XML РёР· Рї.5
 
 
 -- 8. Live activity
 -- SqlStatementCompleted -> Watch Live Data.
 
--- 9. Выполнить новые запросы - появятся в окне Live Data
+-- 9. Р’С‹РїРѕР»РЅРёС‚СЊ РЅРѕРІС‹Рµ Р·Р°РїСЂРѕСЃС‹ - РїРѕСЏРІСЏС‚СЃСЏ РІ РѕРєРЅРµ Live Data
 SELECT 'sample extended events 3' AS v1;
 GO
 SELECT 'sample extended events 4' AS v2;
 GO
 
--- 10. Остановить сессию
+-- 10. РћСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРµСЃСЃРёСЋ
 ALTER EVENT SESSION SqlStatementCompleted ON SERVER
 	STATE=STOP
 GO
 
--- 11. Свойства сессии
+-- 11. РЎРІРѕР№СЃС‚РІР° СЃРµСЃСЃРёРё
 -- SqlStatementCompleted -> Properties.
 
--- 12. Удалить сессию
+-- 12. РЈРґР°Р»РёС‚СЊ СЃРµСЃСЃРёСЋ
 DROP EVENT SESSION SqlStatementCompleted ON SERVER

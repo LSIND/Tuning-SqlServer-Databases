@@ -1,12 +1,12 @@
--- 1. Очистить кэш плана 
+-- 1. РћС‡РёСЃС‚РёС‚СЊ РєСЌС€ РїР»Р°РЅР° 
 
 USE AdventureWorks;
 GO
 DBCC FREEPROCCACHE
 GO
 
--- 2. Выполнить три запроса
--- Во втором запросе есть лишний пробел после WHERE soh.SalesOrderID =
+-- 2. Р’С‹РїРѕР»РЅРёС‚СЊ С‚СЂРё Р·Р°РїСЂРѕСЃР°
+-- Р’Рѕ РІС‚РѕСЂРѕРј Р·Р°РїСЂРѕСЃРµ РµСЃС‚СЊ Р»РёС€РЅРёР№ РїСЂРѕР±РµР» РїРѕСЃР»Рµ WHERE soh.SalesOrderID =
 
 SELECT * FROM Sales.SalesOrderHeader AS soh 
 JOIN Sales.SalesOrderDetail AS sod
@@ -27,7 +27,7 @@ WHERE soh.SalesOrderID = 43668
 AND sod.UnitPrice > 12.00
 GO 
 
--- 3. Кэши планов. Значение query_hash одинаково для трех планов
+-- 3. РљСЌС€Рё РїР»Р°РЅРѕРІ. Р—РЅР°С‡РµРЅРёРµ query_hash РѕРґРёРЅР°РєРѕРІРѕ РґР»СЏ С‚СЂРµС… РїР»Р°РЅРѕРІ
 SELECT p.objtype, qs.query_hash, p.plan_handle, qp.query_plan, st.[text], p.usecounts
 FROM sys.dm_exec_cached_plans AS p
 JOIN sys.dm_exec_query_stats AS qs
@@ -36,21 +36,21 @@ CROSS APPLY sys.dm_exec_query_plan(p.plan_handle) AS qp
 CROSS APPLY sys.dm_exec_sql_text(p.plan_handle) AS st 
 WHERE st.[text] LIKE 'SELECT * FROM ' + 'Sales.SalesOrderHeader%';
 
--- 4. Значение 'optimize for ad-hoc workloads' (run_value = 0)
+-- 4. Р—РЅР°С‡РµРЅРёРµ 'optimize for ad-hoc workloads' (run_value = 0)
 EXEC sp_configure 'show advanced options',1
 RECONFIGURE
 GO
 EXEC sp_configure 'optimize for ad hoc workload'
 
--- 5. Изменить значение 'optimize for ad-hoc workloads' = 1
+-- 5. РР·РјРµРЅРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ 'optimize for ad-hoc workloads' = 1
 EXEC sp_configure 'optimize for ad hoc workload', 1
 RECONFIGURE
 GO
 EXEC sp_configure 'optimize for ad hoc workload'
 
--- 6. Выполнить три запроса п.2
+-- 6. Р’С‹РїРѕР»РЅРёС‚СЊ С‚СЂРё Р·Р°РїСЂРѕСЃР° Рї.2
 
--- 7. Кэши планов. query_plan = NULL; 
+-- 7. РљСЌС€Рё РїР»Р°РЅРѕРІ. query_plan = NULL; 
 SELECT p.objtype, qs.query_hash, p.plan_handle, qp.query_plan, st.[text], p.usecounts
 FROM sys.dm_exec_cached_plans AS p
 JOIN sys.dm_exec_query_stats AS qs
@@ -59,7 +59,7 @@ CROSS APPLY sys.dm_exec_query_plan(p.plan_handle) AS qp
 CROSS APPLY sys.dm_exec_sql_text(p.plan_handle) AS st 
 WHERE st.[text] LIKE 'SELECT * FROM ' + 'Sales.SalesOrderHeader%';
 
--- 8. Первый запрос из п.2 (тот же текст)
+-- 8. РџРµСЂРІС‹Р№ Р·Р°РїСЂРѕСЃ РёР· Рї.2 (С‚РѕС‚ Р¶Рµ С‚РµРєСЃС‚)
 SELECT * FROM Sales.SalesOrderHeader AS soh 
 JOIN Sales.SalesOrderDetail AS sod
 ON sod.SalesOrderID = soh.SalesOrderID
@@ -67,7 +67,7 @@ WHERE soh.SalesOrderID = 43667
 AND sod.UnitPrice > 10.00
 GO
 
--- 9. Кэши планов. query_plan != NULL только у первого запроса; 
+-- 9. РљСЌС€Рё РїР»Р°РЅРѕРІ. query_plan != NULL С‚РѕР»СЊРєРѕ Сѓ РїРµСЂРІРѕРіРѕ Р·Р°РїСЂРѕСЃР°; 
 SELECT p.objtype, qs.query_hash, p.plan_handle, qp.query_plan, st.[text], p.usecounts
 FROM sys.dm_exec_cached_plans AS p
 JOIN sys.dm_exec_query_stats AS qs
@@ -76,7 +76,7 @@ CROSS APPLY sys.dm_exec_query_plan(p.plan_handle) AS qp
 CROSS APPLY sys.dm_exec_sql_text(p.plan_handle) AS st 
 WHERE st.[text] LIKE 'SELECT * FROM ' + 'Sales.SalesOrderHeader%';
 
--- 10. Изменить свойство optimize for ad-hoc workloads = 0
+-- 10. РР·РјРµРЅРёС‚СЊ СЃРІРѕР№СЃС‚РІРѕ optimize for ad-hoc workloads = 0
 EXEC sp_configure 'optimize for ad hoc workload', 0
 RECONFIGURE
 GO

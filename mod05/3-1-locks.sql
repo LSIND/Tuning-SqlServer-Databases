@@ -8,11 +8,11 @@ GO
 ALTER DATABASE AdventureWorks
 SET READ_COMMITTED_SNAPSHOT OFF; */
 
---I.  Сведения об активных в данный момент в SQL Server ресурсах диспетчера блокировок
+--I.  РЎРІРµРґРµРЅРёСЏ РѕР± Р°РєС‚РёРІРЅС‹С… РІ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РІ SQL Server СЂРµСЃСѓСЂСЃР°С… РґРёСЃРїРµС‚С‡РµСЂР° Р±Р»РѕРєРёСЂРѕРІРѕРє
 SELECT * 
 FROM sys.dm_tran_locks;
 
--- 1. Текущий уровень изоляции транзакций для БД
+-- 1. РўРµРєСѓС‰РёР№ СѓСЂРѕРІРµРЅСЊ РёР·РѕР»СЏС†РёРё С‚СЂР°РЅР·Р°РєС†РёР№ РґР»СЏ Р‘Р”
 SELECT d.snapshot_isolation_state, d.is_read_committed_snapshot_on,
 CASE transaction_isolation_level 
 	WHEN 0 THEN 'UNSPECIFIED' 
@@ -27,12 +27,12 @@ join sys.databases  AS d
 ON d.database_id = es.database_id
 WHERE es.session_id = @@SPID;
 
--- 2. Блокировки SELECT-запроса при уровне READ UNCOMMITTED
+-- 2. Р‘Р»РѕРєРёСЂРѕРІРєРё SELECT-Р·Р°РїСЂРѕСЃР° РїСЂРё СѓСЂРѕРІРЅРµ READ UNCOMMITTED
 SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
 BEGIN TRANSACTION
 	SELECT TOP (100) * FROM AdventureWorks.Person.Person;
 
--- 3. Виды блокировок данной транзакции: DATABASE (S) и METADATA (Sch-S)
+-- 3. Р’РёРґС‹ Р±Р»РѕРєРёСЂРѕРІРѕРє РґР°РЅРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё: DATABASE (S) Рё METADATA (Sch-S)
 	SELECT resource_type, request_mode,COUNT(*) AS lock_count
 	FROM sys.dm_tran_locks 
 	WHERE request_session_id = @@SPID 
@@ -40,14 +40,14 @@ BEGIN TRANSACTION
 
 ROLLBACK
 
--- II. HINTS, влияющие на уровень изоляции
+-- II. HINTS, РІР»РёСЏСЋС‰РёРµ РЅР° СѓСЂРѕРІРµРЅСЊ РёР·РѕР»СЏС†РёРё
 
--- 1. Блокировка SELECT-запроса при уровне REPEATABLE READ
+-- 1. Р‘Р»РѕРєРёСЂРѕРІРєР° SELECT-Р·Р°РїСЂРѕСЃР° РїСЂРё СѓСЂРѕРІРЅРµ REPEATABLE READ
 SET TRANSACTION ISOLATION LEVEL REPEATABLE READ
 BEGIN TRANSACTION
 	SELECT TOP (100) * FROM AdventureWorks.Person.Person;
 
--- 2. Виды блокировок данной транзакции: DATABASE = 1, PAGE (IS) = 8, OBJECT (IS) = 1, KEY = 100, METADATA = 3
+-- 2. Р’РёРґС‹ Р±Р»РѕРєРёСЂРѕРІРѕРє РґР°РЅРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё: DATABASE = 1, PAGE (IS) = 8, OBJECT (IS) = 1, KEY = 100, METADATA = 3
 	SELECT resource_type, request_mode,COUNT(*) AS lock_count
 	FROM sys.dm_tran_locks 
 	WHERE request_session_id = @@SPID 
@@ -55,13 +55,13 @@ BEGIN TRANSACTION
 
 ROLLBACK
 
--- 3. Блокировка SELECT-запроса при уровне REPEATABLE READ, но с  READCOMMITTED locking hint
+-- 3. Р‘Р»РѕРєРёСЂРѕРІРєР° SELECT-Р·Р°РїСЂРѕСЃР° РїСЂРё СѓСЂРѕРІРЅРµ REPEATABLE READ, РЅРѕ СЃ  READCOMMITTED locking hint
 SET TRANSACTION ISOLATION LEVEL REPEATABLE READ
 BEGIN TRANSACTION
 	SELECT TOP (100) * FROM AdventureWorks.Person.Person
 	WITH (READCOMMITTED);
 
--- 4. Виды блокировок данной транзакции: DATABASE = 1, METADATA = 3; как в случае I.2-3.
+-- 4. Р’РёРґС‹ Р±Р»РѕРєРёСЂРѕРІРѕРє РґР°РЅРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё: DATABASE = 1, METADATA = 3; РєР°Рє РІ СЃР»СѓС‡Р°Рµ I.2-3.
 	SELECT resource_type, request_mode,COUNT(*) AS lock_count
 	FROM sys.dm_tran_locks 
 	WHERE request_session_id = @@SPID 
@@ -69,15 +69,15 @@ BEGIN TRANSACTION
 
 ROLLBACK
 
--- III. HINTS, влияющие на уровень блокировки
+-- III. HINTS, РІР»РёСЏСЋС‰РёРµ РЅР° СѓСЂРѕРІРµРЅСЊ Р±Р»РѕРєРёСЂРѕРІРєРё
 
--- 1. Блокировка SELECT-запроса при уровне READ COMMITTED, но с TABLOCKX locking hint
+-- 1. Р‘Р»РѕРєРёСЂРѕРІРєР° SELECT-Р·Р°РїСЂРѕСЃР° РїСЂРё СѓСЂРѕРІРЅРµ READ COMMITTED, РЅРѕ СЃ TABLOCKX locking hint
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED
 BEGIN TRANSACTION
 	SELECT TOP (100) * FROM AdventureWorks.Person.Person 
 	WITH (TABLOCKX);
 
--- 2. Виды блокировок данной транзакции: DATABASE = 1, METADATA = 2, OBJECT (X) = 1
+-- 2. Р’РёРґС‹ Р±Р»РѕРєРёСЂРѕРІРѕРє РґР°РЅРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё: DATABASE = 1, METADATA = 2, OBJECT (X) = 1
 	SELECT resource_type, request_mode,COUNT(*) AS lock_count
 	FROM sys.dm_tran_locks 
 	WHERE request_session_id = @@SPID 
@@ -85,13 +85,13 @@ BEGIN TRANSACTION
 
 ROLLBACK
 
--- 3. Блокировка SELECT-запроса при уровне REPEATABLE READ, но с TABLOCKX
+-- 3. Р‘Р»РѕРєРёСЂРѕРІРєР° SELECT-Р·Р°РїСЂРѕСЃР° РїСЂРё СѓСЂРѕРІРЅРµ REPEATABLE READ, РЅРѕ СЃ TABLOCKX
 SET TRANSACTION ISOLATION LEVEL REPEATABLE READ
 BEGIN TRANSACTION
 	SELECT TOP (100) * FROM AdventureWorks.Person.Person 
 	WITH (TABLOCKX);
 
--- 4. Виды блокировок данной транзакции: DATABASE = 1, METADATA = 2, TABLE (X) = 1
+-- 4. Р’РёРґС‹ Р±Р»РѕРєРёСЂРѕРІРѕРє РґР°РЅРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё: DATABASE = 1, METADATA = 2, TABLE (X) = 1
 	SELECT resource_type, request_mode,COUNT(*) AS lock_count
 	FROM sys.dm_tran_locks 
 	WHERE request_session_id = @@SPID 
@@ -100,16 +100,16 @@ BEGIN TRANSACTION
 ROLLBACK
 
 -- 5. READPAST HINT
--- 5.1. Выполните "Запрос 1" в 3-2-locks.sql
+-- 5.1. Р’С‹РїРѕР»РЅРёС‚Рµ "Р—Р°РїСЂРѕСЃ 1" РІ 3-2-locks.sql
 
--- 5.2. Выполните запрос без Hint. Ожидадание
+-- 5.2. Р’С‹РїРѕР»РЅРёС‚Рµ Р·Р°РїСЂРѕСЃ Р±РµР· Hint. РћР¶РёРґР°РґР°РЅРёРµ
 SELECT * 
 FROM Sales.SalesTerritory;
 
 -- 5.3. READPAST
--- 9 строк возвращено. TerritoryID = 3 не включена в результирующий набор
+-- 9 СЃС‚СЂРѕРє РІРѕР·РІСЂР°С‰РµРЅРѕ. TerritoryID = 3 РЅРµ РІРєР»СЋС‡РµРЅР° РІ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёР№ РЅР°Р±РѕСЂ
 SELECT * 
 FROM Sales.SalesTerritory 
 WITH (READPAST);
 
--- 5.4. Выполните "Запрос 2" в 3-2-locks.sql - откат транзакции
+-- 5.4. Р’С‹РїРѕР»РЅРёС‚Рµ "Р—Р°РїСЂРѕСЃ 2" РІ 3-2-locks.sql - РѕС‚РєР°С‚ С‚СЂР°РЅР·Р°РєС†РёРё

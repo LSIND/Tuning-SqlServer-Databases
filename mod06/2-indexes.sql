@@ -3,14 +3,14 @@ GO
 
 -- 1. HEAP
 SELECT * FROM sys.partitions
-where index_id = 0; -- 0 - куча
+where index_id = 0; -- 0 - РєСѓС‡Р°
 
 SELECT * FROM sys.objects
-where is_ms_shipped = 0 -- Объект не создан внутренним компонентом SQL Server.
+where is_ms_shipped = 0 -- РћР±СЉРµРєС‚ РЅРµ СЃРѕР·РґР°РЅ РІРЅСѓС‚СЂРµРЅРЅРёРј РєРѕРјРїРѕРЅРµРЅС‚РѕРј SQL Server.
 AND type = 'U'
 order by name; 
 
--- все пользовательские heaps в БД
+-- РІСЃРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРµ heaps РІ Р‘Р”
 SELECT DISTINCT o.name AS heap_name, index_id
 FROM sys.partitions AS p
 JOIN sys.objects AS o
@@ -18,12 +18,12 @@ ON o.object_id = p.object_id
 WHERE index_id = 0
 AND o.is_ms_shipped = 0; 
 
--- Указатель на первую страницу IAM для кучи (first_iam_page) в sys.system_internals_allocation_units 
+-- РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РїРµСЂРІСѓСЋ СЃС‚СЂР°РЅРёС†Сѓ IAM РґР»СЏ РєСѓС‡Рё (first_iam_page) РІ sys.system_internals_allocation_units 
 SELECT OBJECT_NAME(p.object_id) AS ObjName, u.first_iam_page, u.type_desc, u.total_pages, u.data_pages 
 FROM sys.allocation_units AS a
 JOIN sys.partitions AS p 
 ON p.hobt_id = a.container_id
-AND a.type in (1,3) -- Тип единицы распределения, кроме 0 = удаленная
+AND a.type in (1,3) -- РўРёРї РµРґРёРЅРёС†С‹ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ, РєСЂРѕРјРµ 0 = СѓРґР°Р»РµРЅРЅР°СЏ
 JOIN sys.system_internals_allocation_units AS u
 ON u.allocation_unit_id = a.allocation_unit_id
 JOIN sys.objects AS o
@@ -32,7 +32,7 @@ WHERE p.index_id = 0 AND o.is_ms_shipped = 0;
 GO
 
 
--- 2. Индексы rowstore
+-- 2. РРЅРґРµРєСЃС‹ rowstore
 
 DROP SCHEMA IF EXISTS Proseware;
 GO
@@ -43,7 +43,7 @@ GO
 DROP TABLE IF EXISTS Proseware.CampaignMailer;
 GO
 
--- 2.1 Таблица Proseware.CampaignMailer с Кластерный индекс - первичный ключ на GUID
+-- 2.1 РўР°Р±Р»РёС†Р° Proseware.CampaignMailer СЃ РљР»Р°СЃС‚РµСЂРЅС‹Р№ РёРЅРґРµРєСЃ - РїРµСЂРІРёС‡РЅС‹Р№ РєР»СЋС‡ РЅР° GUID
 CREATE TABLE Proseware.CampaignMailer
 ( 
 CampaignMailerID uniqueidentifier NOT NULL 
@@ -53,7 +53,7 @@ CampaignID int NOT NULL,
 MailerCount int NOT NULL
 );
 
--- 3. Single Column и Multicolumn Indexes
+-- 3. Single Column Рё Multicolumn Indexes
 
 SELECT BusinessEntityID 
 FROM Person.Person 
@@ -94,12 +94,12 @@ ON Production.Product (Color)
 WHERE Color IS NOT NULL
 AND ReorderPoint < 500; 
 
--- Статистика, соответствующая этому индексу, также с фильтром
+-- РЎС‚Р°С‚РёСЃС‚РёРєР°, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰Р°СЏ СЌС‚РѕРјСѓ РёРЅРґРµРєСЃСѓ, С‚Р°РєР¶Рµ СЃ С„РёР»СЊС‚СЂРѕРј
 DBCC SHOW_STATISTICS('Production.Product','ix_product_color_filtered');
 
 DROP INDEX IF EXISTS Production.Product.ix_product_color_filtered;
 
--- 5. Запросы с SARGable Predicates
+-- 5. Р—Р°РїСЂРѕСЃС‹ СЃ SARGable Predicates
 SELECT * FROM Person.Person 
 WHERE LastName = N'Accah';
 
@@ -122,14 +122,14 @@ SELECT LastName
 FROM Person.Person
 WHERE LastName LIKE N'%L'; 
 
--- Сравнение SARGability
+-- РЎСЂР°РІРЅРµРЅРёРµ SARGability
 SELECT AddressID, AddressLine1, AddressLine2, City
 FROM Person.Address
-WHERE LEFT(City,1) = 'M'; --scan по индексу
+WHERE LEFT(City,1) = 'M'; --scan РїРѕ РёРЅРґРµРєСЃСѓ
 
 SELECT AddressID, AddressLine1, AddressLine2, City
 FROM Person.Address
-WHERE City LIKE 'M%'; --seek или scan по индексу PK
+WHERE City LIKE 'M%'; --seek РёР»Рё scan РїРѕ РёРЅРґРµРєСЃСѓ PK
 
 
 -- 6. Top 10 Externally Fragmented Indexes
@@ -150,17 +150,17 @@ WHERE ips.avg_page_space_used_in_percent > 0
 ORDER BY ips.avg_page_space_used_in_percent ASC; 
 
 
--- 8. Подробные сведения об отсутствующих индексах
+-- 8. РџРѕРґСЂРѕР±РЅС‹Рµ СЃРІРµРґРµРЅРёСЏ РѕР± РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёС… РёРЅРґРµРєСЃР°С…
 SELECT * FROM sys.dm_db_missing_index_details;
 
--- Сведения о столбцах таблицы базы данных, в которых отсутствует индекс по index_handle
+-- РЎРІРµРґРµРЅРёСЏ Рѕ СЃС‚РѕР»Р±С†Р°С… С‚Р°Р±Р»РёС†С‹ Р±Р°Р·С‹ РґР°РЅРЅС‹С…, РІ РєРѕС‚РѕСЂС‹С… РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РёРЅРґРµРєСЃ РїРѕ index_handle
 SELECT * FROM sys.dm_db_missing_index_columns(8)
 
 SELECT MI.index_handle, MI.statement AS Obj, COL.column_name, COL.column_usage
 FROM sys.dm_db_missing_index_details AS MI
 CROSS APPLY sys.dm_db_missing_index_columns(MI.index_handle) AS COL;
 
--- Сведений о группах отсутствующих индексов (кроме пространственных индексов)
+-- РЎРІРµРґРµРЅРёР№ Рѕ РіСЂСѓРїРїР°С… РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёС… РёРЅРґРµРєСЃРѕРІ (РєСЂРѕРјРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРµРЅРЅС‹С… РёРЅРґРµРєСЃРѕРІ)
 SELECT * FROM sys.dm_db_missing_index_group_stats;
 SELECT * FROM sys.dm_db_missing_index_groups;
 
@@ -174,8 +174,8 @@ JOIN sys.dm_db_missing_index_group_stats AS GS
 ON GS.group_handle = IG.index_group_handle;
 
 
--- 9 Фрагментация
--- 9.1 Вставка 10000 строк в таблицу Proseware.CampaignMailer
+-- 9 Р¤СЂР°РіРјРµРЅС‚Р°С†РёСЏ
+-- 9.1 Р’СЃС‚Р°РІРєР° 10000 СЃС‚СЂРѕРє РІ С‚Р°Р±Р»РёС†Сѓ Proseware.CampaignMailer
 SET NOCOUNT ON;
 DECLARE @i INT = 0
 WHILE @i < 10000
@@ -190,8 +190,8 @@ SELECT object_name(object_id) AS object_name, avg_fragmentation_in_percent
 FROM sys.dm_db_index_physical_stats(DB_ID(), OBJECT_ID('Proseware.CampaignMailer'), NULL, NULL, 'DETAILED');
 GO
 
--- 9.3 Просмотр последовательности страниц 
---  allocate_page_page_id - не по порядку
+-- 9.3 РџСЂРѕСЃРјРѕС‚СЂ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё СЃС‚СЂР°РЅРёС† 
+--  allocate_page_page_id - РЅРµ РїРѕ РїРѕСЂСЏРґРєСѓ
 WITH dataCTE
 AS
 (
@@ -216,7 +216,7 @@ SELECT allocated_page_page_id, page_sequence
 FROM pageCTE
 ORDER BY page_sequence;
 
--- 9.4 Создание таблицы с PK IDENTITY и вставка 10000 строк
+-- 9.4 РЎРѕР·РґР°РЅРёРµ С‚Р°Р±Р»РёС†С‹ СЃ PK IDENTITY Рё РІСЃС‚Р°РІРєР° 10000 СЃС‚СЂРѕРє
 DROP TABLE IF EXISTS Proseware.CampaignPrintRun;
 
 CREATE TABLE Proseware.CampaignPrintRun
@@ -243,8 +243,8 @@ FROM sys.dm_db_index_physical_stats(DB_ID(), OBJECT_ID('Proseware.CampaignPrintR
 GO
 
 
--- 9.6 Просмотр последовательности страниц 
---  allocate_page_page_id - по порядку
+-- 9.6 РџСЂРѕСЃРјРѕС‚СЂ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё СЃС‚СЂР°РЅРёС† 
+--  allocate_page_page_id - РїРѕ РїРѕСЂСЏРґРєСѓ
 WITH dataCTE
 AS
 (

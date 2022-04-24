@@ -1,22 +1,22 @@
--- 1. Создать Сессию с помощью SSMS
+-- 1. РЎРѕР·РґР°С‚СЊ РЎРµСЃСЃРёСЋ СЃ РїРѕРјРѕС‰СЊСЋ SSMS
 -- Management -> Sessions -> Add Session...
--- New Session -> General -> "Session name" -> название Waits by Session
--- New Session -> Events -> Event library найти и добавить wait_info в Selected events list
--- Для wait_info -> Event configuration options -> Global Fields (Actions) выбрать session_id
--- Для wait_info -> Event configuration options -> Filter (Predicate) -> добавить условие sqlserver.session_id > 50.
--- New Session -> Data Storage -> добавить цель (Add) -> выбрать event_file, а также расположение файла .XEL
--- Максимальный размер файла - 5 Mb
+-- New Session -> General -> "Session name" -> РЅР°Р·РІР°РЅРёРµ Waits by Session
+-- New Session -> Events -> Event library РЅР°Р№С‚Рё Рё РґРѕР±Р°РІРёС‚СЊ wait_info РІ Selected events list
+-- Р”Р»СЏ wait_info -> Event configuration options -> Global Fields (Actions) РІС‹Р±СЂР°С‚СЊ session_id
+-- Р”Р»СЏ wait_info -> Event configuration options -> Filter (Predicate) -> РґРѕР±Р°РІРёС‚СЊ СѓСЃР»РѕРІРёРµ sqlserver.session_id > 50.
+-- New Session -> Data Storage -> РґРѕР±Р°РІРёС‚СЊ С†РµР»СЊ (Add) -> РІС‹Р±СЂР°С‚СЊ event_file, Р° С‚Р°РєР¶Рµ СЂР°СЃРїРѕР»РѕР¶РµРЅРёРµ С„Р°Р№Р»Р° .XEL
+-- РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ С„Р°Р№Р»Р° - 5 Mb
 -- OK
--- Запустить сессию Start Session
+-- Р—Р°РїСѓСЃС‚РёС‚СЊ СЃРµСЃСЃРёСЋ Start Session
 
 
--- Сгенерированный код T-SQL Сессии
+-- РЎРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅС‹Р№ РєРѕРґ T-SQL РЎРµСЃСЃРёРё
 CREATE EVENT SESSION [Waits by Session] ON SERVER 
 ADD EVENT sqlos.wait_info(
     ACTION(sqlserver.session_id)
     WHERE ([sqlserver].[session_id]>(50)))
 ADD TARGET package0.event_file(
-SET filename=N'<путь к файлу>\waitbysession.xel',max_file_size=(5))
+SET filename=N'<РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ>\waitbysession.xel',max_file_size=(5))
 WITH (MAX_MEMORY=4096 KB,
 	EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,
 	MAX_DISPATCH_LATENCY=30 SECONDS,
@@ -31,15 +31,15 @@ ALTER EVENT SESSION [Waits by Session] ON SERVER
 GO
 
 
--- 2. Запустить скрипт load_script1.sql (~60 минут)
+-- 2. Р—Р°РїСѓСЃС‚РёС‚СЊ СЃРєСЂРёРїС‚ load_script1.sql (~60 РјРёРЅСѓС‚)
 
 
--- 3. Агрегирование результатов из файла по session_id
+-- 3. РђРіСЂРµРіРёСЂРѕРІР°РЅРёРµ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ РёР· С„Р°Р№Р»Р° РїРѕ session_id
 WITH xeCTE
 AS
 (
 	SELECT CAST(event_data AS xml) AS xe_xml
-	FROM sys.fn_xe_file_target_read_file('<путь к файлу>\waitbysession*.xel', NULL, NULL, NULL)
+	FROM sys.fn_xe_file_target_read_file('<РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ>\waitbysession*.xel', NULL, NULL, NULL)
 )
 ,valueCTE
 AS
@@ -59,7 +59,7 @@ WHERE wait_duration > 0
 GROUP BY sessionID, wait_type
 ORDER BY sessionID, wait_type;
 
--- 4. Останова и удаление сессии, а также остановка нагрузки load_script1.sql
+-- 4. РћСЃС‚Р°РЅРѕРІР° Рё СѓРґР°Р»РµРЅРёРµ СЃРµСЃСЃРёРё, Р° С‚Р°РєР¶Рµ РѕСЃС‚Р°РЅРѕРІРєР° РЅР°РіСЂСѓР·РєРё load_script1.sql
 ALTER EVENT SESSION [Waits by Session] ON SERVER
 	STATE=STOP
 GO

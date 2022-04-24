@@ -1,4 +1,4 @@
-
+-- Системные предстовления для Autotuning
 
 SELECT * FROM sys.dm_db_tuning_recommendations;
 
@@ -11,7 +11,6 @@ CROSS APPLY OPENJSON(details, '$.planForceDetails')
             regressed_plan_id int '$.regressedPlanId',
             last_good_plan_id int '$.recommendedPlanId') AS details
 WHERE JSON_VALUE(state, '$.currentValue') = 'Active';
-
 
 
 

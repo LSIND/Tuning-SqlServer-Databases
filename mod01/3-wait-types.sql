@@ -1,28 +1,28 @@
--- 1. Откройте скрипт 2-1-hanging-tran.sql и выполните инструкции. Получите update_session_id
--- 2. Откройте скрипт 2-2-blocked-tran.sql и выполните инструкции. Получите select_session_id
+-- 1. РћС‚РєСЂРѕР№С‚Рµ СЃРєСЂРёРїС‚ 2-1-hanging-tran.sql Рё РІС‹РїРѕР»РЅРёС‚Рµ РёРЅСЃС‚СЂСѓРєС†РёРё. РџРѕР»СѓС‡РёС‚Рµ update_session_id
+-- 2. РћС‚РєСЂРѕР№С‚Рµ СЃРєСЂРёРїС‚ 2-2-blocked-tran.sql Рё РІС‹РїРѕР»РЅРёС‚Рµ РёРЅСЃС‚СЂСѓРєС†РёРё. РџРѕР»СѓС‡РёС‚Рµ select_session_id
 
--- 3. Сведения об очереди задач, ожидающих освобождения ресурса. 
--- Задача с select_session_id имеет тип ожидания LCK_M_S
+-- 3. РЎРІРµРґРµРЅРёСЏ РѕР± РѕС‡РµСЂРµРґРё Р·Р°РґР°С‡, РѕР¶РёРґР°СЋС‰РёС… РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ СЂРµСЃСѓСЂСЃР°. 
+-- Р—Р°РґР°С‡Р° СЃ select_session_id РёРјРµРµС‚ С‚РёРї РѕР¶РёРґР°РЅРёСЏ LCK_M_S
 SELECT * FROM sys.dm_os_waiting_tasks 
 WHERE session_id > 50;
 
--- 4. Сведения обо всех ожиданиях, которые выполнялись для каждой сессии
--- Подставьте select_session_id в условие WHERE 
--- Сессия select_session_id имеет тип ожидания MEMORY_ALLOCATION_EXT
+-- 4. РЎРІРµРґРµРЅРёСЏ РѕР±Рѕ РІСЃРµС… РѕР¶РёРґР°РЅРёСЏС…, РєРѕС‚РѕСЂС‹Рµ РІС‹РїРѕР»РЅСЏР»РёСЃСЊ РґР»СЏ РєР°Р¶РґРѕР№ СЃРµСЃСЃРёРё
+-- РџРѕРґСЃС‚Р°РІСЊС‚Рµ select_session_id РІ СѓСЃР»РѕРІРёРµ WHERE 
+-- РЎРµСЃСЃРёСЏ select_session_id РёРјРµРµС‚ С‚РёРї РѕР¶РёРґР°РЅРёСЏ MEMORY_ALLOCATION_EXT
 SELECT * FROM sys.dm_exec_session_wait_stats 
 WHERE session_id = <select_session_id>;
 
--- 5. В скрипте 2-1-hanging-tran.sql выполните команду ROLLBACK; 
+-- 5. Р’ СЃРєСЂРёРїС‚Рµ 2-1-hanging-tran.sql РІС‹РїРѕР»РЅРёС‚Рµ РєРѕРјР°РЅРґСѓ ROLLBACK; 
 
--- 6. Подставьте select_session_id в условие WHERE 
--- Сессия select_session_id имеет тип ожидания LCK_M_S
+-- 6. РџРѕРґСЃС‚Р°РІСЊС‚Рµ select_session_id РІ СѓСЃР»РѕРІРёРµ WHERE 
+-- РЎРµСЃСЃРёСЏ select_session_id РёРјРµРµС‚ С‚РёРї РѕР¶РёРґР°РЅРёСЏ LCK_M_S
 SELECT * FROM sys.dm_exec_session_wait_stats 
 WHERE session_id = <select_session_id>;
 
 -- ==============================================
 
--- 7. Ожидания PAGELATCH и WRITELOG
--- Создать таблицу insertTargetEx
+-- 7. РћР¶РёРґР°РЅРёСЏ PAGELATCH Рё WRITELOG
+-- РЎРѕР·РґР°С‚СЊ С‚Р°Р±Р»РёС†Сѓ insertTargetEx
 
 USE AdventureWorks;
 GO
@@ -37,28 +37,28 @@ date1 datetime2
 )
 GO
 
--- Очистить статистику ожиданий командой DBCC
+-- РћС‡РёСЃС‚РёС‚СЊ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РѕР¶РёРґР°РЅРёР№ РєРѕРјР°РЅРґРѕР№ DBCC
 DBCC SQLPERF('sys.dm_os_wait_stats',clear);
 
--- 8. Определить значения ожиданий PAGELATCH и WRITELOG
+-- 8. РћРїСЂРµРґРµР»РёС‚СЊ Р·РЅР°С‡РµРЅРёСЏ РѕР¶РёРґР°РЅРёР№ PAGELATCH Рё WRITELOG
 SELECT * FROM sys.dm_os_wait_stats 
 WHERE wait_type = 'WRITELOG'
 UNION ALL
 SELECT * FROM sys.dm_os_wait_stats 
 WHERE wait_type like 'PAGELATCH%';
 
--- 9. Откройте "Resource Monitor" -> вкладка Disk -> диаграмма Disk Queue Length ~ 0
+-- 9. РћС‚РєСЂРѕР№С‚Рµ "Resource Monitor" -> РІРєР»Р°РґРєР° Disk -> РґРёР°РіСЂР°РјРјР° Disk Queue Length ~ 0
 
--- 10. Откройте Powershell от имени администратора, перейдите в папку ..Tuning-SqlServer-Databases\mod01
--- Выполните скрипт .\start-load.ps1 workload2.sql
--- Скрипт ps запустит 10 фоновых работ (job), выполняющих один и тот же скрипт workload2.sql
--- Просмотрите изменения диаграммы Disk Queue
+-- 10. РћС‚РєСЂРѕР№С‚Рµ Powershell РѕС‚ РёРјРµРЅРё Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°, РїРµСЂРµР№РґРёС‚Рµ РІ РїР°РїРєСѓ ..Tuning-SqlServer-Databases\mod01
+-- Р’С‹РїРѕР»РЅРёС‚Рµ СЃРєСЂРёРїС‚ .\start-load.ps1 workload2.sql
+-- РЎРєСЂРёРїС‚ ps Р·Р°РїСѓСЃС‚РёС‚ 10 С„РѕРЅРѕРІС‹С… СЂР°Р±РѕС‚ (job), РІС‹РїРѕР»РЅСЏСЋС‰РёС… РѕРґРёРЅ Рё С‚РѕС‚ Р¶Рµ СЃРєСЂРёРїС‚ workload2.sql
+-- РџСЂРѕСЃРјРѕС‚СЂРёС‚Рµ РёР·РјРµРЅРµРЅРёСЏ РґРёР°РіСЂР°РјРјС‹ Disk Queue
 
--- 11. Значения ожиданий PAGELATCH и WRITELOG сильно выросли
+-- 11. Р—РЅР°С‡РµРЅРёСЏ РѕР¶РёРґР°РЅРёР№ PAGELATCH Рё WRITELOG СЃРёР»СЊРЅРѕ РІС‹СЂРѕСЃР»Рё
 
 SELECT * FROM sys.dm_os_wait_stats WHERE wait_type = 'WRITELOG'
 UNION ALL
 SELECT * FROM sys.dm_os_wait_stats WHERE wait_type like 'PAGELATCH%';
 
--- 12. Удалить таблицу dbo.insertTargetEx;
+-- 12. РЈРґР°Р»РёС‚СЊ С‚Р°Р±Р»РёС†Сѓ dbo.insertTargetEx;
 DROP TABLE IF EXISTS dbo.insertTargetEx;

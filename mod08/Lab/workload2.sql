@@ -1,5 +1,5 @@
 -- load generation script 1
--- цикл на 60 минут,или пока не будет создана ##stopload 
+-- С†РёРєР» РЅР° 60 РјРёРЅСѓС‚,РёР»Рё РїРѕРєР° РЅРµ Р±СѓРґРµС‚ СЃРѕР·РґР°РЅР° ##stopload 
 DROP TABLE IF EXISTS ##stopload;
 
 USE TSQL;

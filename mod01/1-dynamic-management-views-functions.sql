@@ -1,24 +1,24 @@
--- 1. Dynamic Management Views и Functions
+-- 1. Dynamic Management Views Рё Functions
 
--- Откройте Powershell от имени администратора, перейдите в папку ..Tuning-SqlServer-Databases\mod01
--- Выполните скрипт .\start-load.ps1 workload1.sql
--- Скрипт ps запустит 10 фоновых работ (job), выполняющих один и тот же скрипт workload1.sql
+-- РћС‚РєСЂРѕР№С‚Рµ Powershell РѕС‚ РёРјРµРЅРё Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°, РїРµСЂРµР№РґРёС‚Рµ РІ РїР°РїРєСѓ ..Tuning-SqlServer-Databases\mod01
+-- Р’С‹РїРѕР»РЅРёС‚Рµ СЃРєСЂРёРїС‚ .\start-load.ps1 workload1.sql
+-- РЎРєСЂРёРїС‚ ps Р·Р°РїСѓСЃС‚РёС‚ 10 С„РѕРЅРѕРІС‹С… СЂР°Р±РѕС‚ (job), РІС‹РїРѕР»РЅСЏСЋС‰РёС… РѕРґРёРЅ Рё С‚РѕС‚ Р¶Рµ СЃРєСЂРёРїС‚ workload1.sql
 
 -- 1.1. dm_exec_*
--- Сведения о каждом запросе, который выполняется в SQL Server 
--- running, runnable или suspended
+-- РЎРІРµРґРµРЅРёСЏ Рѕ РєР°Р¶РґРѕРј Р·Р°РїСЂРѕСЃРµ, РєРѕС‚РѕСЂС‹Р№ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РІ SQL Server 
+-- running, runnable РёР»Рё suspended
 SELECT * FROM sys.dm_exec_requests
-WHERE session_id > 50; --исключить системные сессии;  
+WHERE session_id > 50; --РёСЃРєР»СЋС‡РёС‚СЊ СЃРёСЃС‚РµРјРЅС‹Рµ СЃРµСЃСЃРёРё;  
 GO 
 
--- Текст SQL batch, идентифицируемого указанным sql_handle. 
+-- РўРµРєСЃС‚ SQL batch, РёРґРµРЅС‚РёС„РёС†РёСЂСѓРµРјРѕРіРѕ СѓРєР°Р·Р°РЅРЅС‹Рј sql_handle. 
 SELECT t.text, r.session_id, r.start_time, r.status
 FROM sys.dm_exec_requests AS r
 CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) AS t
-WHERE session_id = @@SPID -- Требуемый SPID
+WHERE session_id = @@SPID -- РўСЂРµР±СѓРµРјС‹Р№ SPID
 
--- сведения обо всех активных подключениях пользователей и внутренних задачах
--- Найдите SQLCMD от рабочей нагрузки
+-- СЃРІРµРґРµРЅРёСЏ РѕР±Рѕ РІСЃРµС… Р°РєС‚РёРІРЅС‹С… РїРѕРґРєР»СЋС‡РµРЅРёСЏС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ Рё РІРЅСѓС‚СЂРµРЅРЅРёС… Р·Р°РґР°С‡Р°С…
+-- РќР°Р№РґРёС‚Рµ SQLCMD РѕС‚ СЂР°Р±РѕС‡РµР№ РЅР°РіСЂСѓР·РєРё
 SELECT * FROM sys.dm_exec_sessions 
 
 WHERE session_id > 50
@@ -26,17 +26,17 @@ ORDER BY session_id DESC
 
 
 -- 1.2. dm_os_*
--- Одна строка для каждой активной задачи в экземпляре SQL Server
--- task_state = RUNNING, SUSPENDED или RUNNABLE.
+-- РћРґРЅР° СЃС‚СЂРѕРєР° РґР»СЏ РєР°Р¶РґРѕР№ Р°РєС‚РёРІРЅРѕР№ Р·Р°РґР°С‡Рё РІ СЌРєР·РµРјРїР»СЏСЂРµ SQL Server
+-- task_state = RUNNING, SUSPENDED РёР»Рё RUNNABLE.
 SELECT * from sys.dm_os_tasks
-WHERE session_id > 50; --исключить системные сессии;  
+WHERE session_id > 50; --РёСЃРєР»СЋС‡РёС‚СЊ СЃРёСЃС‚РµРјРЅС‹Рµ СЃРµСЃСЃРёРё;  
 
--- Одна строка для каждого планировщика SQL Server, сопоставленного с отдельным процессором
--- current_tasks_count и runnable_tasks_count columns = общее количество задач 
--- большое количество runnable задач в долгий промежуток времени - нагрузка на ЦП
+-- РћРґРЅР° СЃС‚СЂРѕРєР° РґР»СЏ РєР°Р¶РґРѕРіРѕ РїР»Р°РЅРёСЂРѕРІС‰РёРєР° SQL Server, СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРЅРѕРіРѕ СЃ РѕС‚РґРµР»СЊРЅС‹Рј РїСЂРѕС†РµСЃСЃРѕСЂРѕРј
+-- current_tasks_count Рё runnable_tasks_count columns = РѕР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РґР°С‡ 
+-- Р±РѕР»СЊС€РѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ runnable Р·Р°РґР°С‡ РІ РґРѕР»РіРёР№ РїСЂРѕРјРµР¶СѓС‚РѕРє РІСЂРµРјРµРЅРё - РЅР°РіСЂСѓР·РєР° РЅР° Р¦Рџ
 SELECT * FROM sys.dm_os_schedulers;
 
--- Совместная информация
+-- РЎРѕРІРјРµСЃС‚РЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ
 SELECT * 
 FROM sys.dm_exec_sessions AS ses
 JOIN sys.dm_exec_requests AS req
@@ -47,10 +47,11 @@ JOIN sys.dm_os_schedulers AS sch
 ON	 sch.scheduler_id = tsk.scheduler_id
 WHERE ses.session_id > 50;
 
--- Сведения о компьютере, а также о ресурсах, доступных для служб SQL Server и используемых ими.
+-- РЎРІРµРґРµРЅРёСЏ Рѕ РєРѕРјРїСЊСЋС‚РµСЂРµ, Р° С‚Р°РєР¶Рµ Рѕ СЂРµСЃСѓСЂСЃР°С…, РґРѕСЃС‚СѓРїРЅС‹С… РґР»СЏ СЃР»СѓР¶Р± SQL Server Рё РёСЃРїРѕР»СЊР·СѓРµРјС‹С… РёРјРё.
+-- os_quantum = 4 milliseconds
 SELECT * FROM sys.dm_os_sys_info;
 
--- история использования ЦПУ из XML-столбца [record] представления sys.dm_os_ring_buffers
+-- РёСЃС‚РѕСЂРёСЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ Р¦РџРЈ РёР· XML-СЃС‚РѕР»Р±С†Р° [record] РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ sys.dm_os_ring_buffers
 SELECT Notification_Time, ProcessUtilization AS SQLProcessUtilization,
 SystemIdle, 100 - SystemIdle - ProcessUtilization AS OtherProcessUtilization
 FROM (	SELECT	r.value('(./Record/@id)[1]', 'int') AS record_id,
@@ -69,23 +70,23 @@ ORDER BY record_id DESC;
 
 
 -- 1.3. dm_tran_*
--- Данные о транзакциях для экземпляра SQL Server.
+-- Р”Р°РЅРЅС‹Рµ Рѕ С‚СЂР°РЅР·Р°РєС†РёСЏС… РґР»СЏ СЌРєР·РµРјРїР»СЏСЂР° SQL Server.
 SELECT * FROM sys.dm_tran_active_transactions;
 
--- SQL SERVER 2019. Сведения о неразрешенных, прерванных транзакциях в экземпляре SQL Server.
+-- SQL SERVER 2019. РЎРІРµРґРµРЅРёСЏ Рѕ РЅРµСЂР°Р·СЂРµС€РµРЅРЅС‹С…, РїСЂРµСЂРІР°РЅРЅС‹С… С‚СЂР°РЅР·Р°РєС†РёСЏС… РІ СЌРєР·РµРјРїР»СЏСЂРµ SQL Server.
 SELECT * FROM sys.dm_tran_aborted_transactions;
 
 
 -- 1.4. dm_io_*
--- Cтатистика ввода-вывода для данных и файлов журнала.
+-- CС‚Р°С‚РёСЃС‚РёРєР° РІРІРѕРґР°-РІС‹РІРѕРґР° РґР»СЏ РґР°РЅРЅС‹С… Рё С„Р°Р№Р»РѕРІ Р¶СѓСЂРЅР°Р»Р°.
 SELECT * FROM sys.dm_io_virtual_file_stats(DB_ID(N'AdventureWorks'), NULL);  
 
--- Cтатистика для файла журнала в базе данных AdventureWorks
+-- CС‚Р°С‚РёСЃС‚РёРєР° РґР»СЏ С„Р°Р№Р»Р° Р¶СѓСЂРЅР°Р»Р° РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С… AdventureWorks
 SELECT * FROM sys.dm_io_virtual_file_stats(DB_ID(N'AdventureWorks'), 2);
 
 
 -- 1.5. dm_db_*
--- Cведения о файлах журнала транзакций
+-- CРІРµРґРµРЅРёСЏ Рѕ С„Р°Р№Р»Р°С… Р¶СѓСЂРЅР°Р»Р° С‚СЂР°РЅР·Р°РєС†РёР№
 SELECT s.name AS 'Database Name', ls.log_backup_time AS [last log backup time], ls.total_log_size_mb
 FROM sys.databases AS s
 CROSS APPLY sys.dm_db_log_stats(s.database_id) AS ls; 

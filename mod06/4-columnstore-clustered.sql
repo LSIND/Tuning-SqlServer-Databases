@@ -1,4 +1,4 @@
--- 1. Предварительное создание таблиц и заполнение таблиц схемы Demo
+-- 1. РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕРµ СЃРѕР·РґР°РЅРёРµ С‚Р°Р±Р»РёС† Рё Р·Р°РїРѕР»РЅРµРЅРёРµ С‚Р°Р±Р»РёС† СЃС…РµРјС‹ Demo
 DROP TABLE IF EXISTS Proseware.Weblog;
 GO
 
@@ -9,7 +9,7 @@ CREATE TABLE Proseware.Weblog
 	client_ip binary(16) NOT NULL,
 	browser_name varchar(50) NOT NULL,
 	page_visit_time_seconds int NOT NULL,
-	INDEX PK_Proseware_Weblog CLUSTERED COLUMNSTORE -- кластерный колоночный индекс на таблицу
+	INDEX PK_Proseware_Weblog CLUSTERED COLUMNSTORE -- РєР»Р°СЃС‚РµСЂРЅС‹Р№ РєРѕР»РѕРЅРѕС‡РЅС‹Р№ РёРЅРґРµРєСЃ РЅР° С‚Р°Р±Р»РёС†Сѓ
 );
 GO
 
@@ -57,7 +57,7 @@ VALUES
 GO
 
 
--- 2. Добавление 10 строк в таблицу Proseware.Weblog
+-- 2. Р”РѕР±Р°РІР»РµРЅРёРµ 10 СЃС‚СЂРѕРє РІ С‚Р°Р±Р»РёС†Сѓ Proseware.Weblog
 INSERT Proseware.Weblog (log_date, page_url,client_ip,browser_name, page_visit_time_seconds)
 SELECT TOP (1) '2015-01-01', CONCAT(w.urlname,'/',p.pagename,s.suffix),
 CAST(RAND()*4294967295 + 4294967295 AS bigint) , b.browser,
@@ -70,14 +70,14 @@ ORDER BY NEWID();
 GO 10
 
 
--- 3. Группы строк (10), из которых состоит индекс
+-- 3. Р“СЂСѓРїРїС‹ СЃС‚СЂРѕРє (10), РёР· РєРѕС‚РѕСЂС‹С… СЃРѕСЃС‚РѕРёС‚ РёРЅРґРµРєСЃ
 -- delta_store_hobt_id != NULL
 SELECT * FROM Proseware.Weblog;
 
 SELECT * FROM sys.column_store_row_groups 
 WHERE object_id = OBJECT_ID('Proseware.Weblog');
 
--- 4. Вставка 1 100 000 строк (блок из 1000 строк) 
+-- 4. Р’СЃС‚Р°РІРєР° 1 100 000 СЃС‚СЂРѕРє (Р±Р»РѕРє РёР· 1000 СЃС‚СЂРѕРє) 
 -- This will trigger the closure of the deltastore
 
 INSERT Proseware.Weblog (log_date, page_url,client_ip,browser_name, page_visit_time_seconds)
@@ -92,12 +92,12 @@ CROSS JOIN Demo.Browser AS b
 ORDER BY NEWID();
 GO 1100
 
--- 5. Группы строк (1 100 010), из которых состоит индекс - 2 группы с state_description OPEN и  CLOSED.
--- CLOSED: total_rows = 1048576 - максимальное значение для группы строк
+-- 5. Р“СЂСѓРїРїС‹ СЃС‚СЂРѕРє (1 100 010), РёР· РєРѕС‚РѕСЂС‹С… СЃРѕСЃС‚РѕРёС‚ РёРЅРґРµРєСЃ - 2 РіСЂСѓРїРїС‹ СЃ state_description OPEN Рё  CLOSED.
+-- CLOSED: total_rows = 1048576 - РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ РіСЂСѓРїРїС‹ СЃС‚СЂРѕРє
 SELECT * FROM sys.column_store_row_groups 
 WHERE object_id = OBJECT_ID('Proseware.Weblog');
 
--- 6. Вставка 2 000 000 за 1 блок
+-- 6. Р’СЃС‚Р°РІРєР° 2 000 000 Р·Р° 1 Р±Р»РѕРє
 INSERT Proseware.Weblog (log_date, page_url,client_ip,browser_name, page_visit_time_seconds)
 SELECT TOP (2000000) 
 DATEADD(ms,ROW_NUMBER() OVER (ORDER BY a.name) ,'2015-01-01'),
@@ -111,25 +111,25 @@ CROSS JOIN Demo.Browser AS b
 CROSS JOIN master.dbo.spt_values AS a;
 GO
 
--- 6. Группы строк (3 100 010), из которых состоит индекс - 4 группы с state_description OPEN и COMPRESSED.
--- CLOSED: total_rows = 1048576 - максимальное значение для группы строк
+-- 6. Р“СЂСѓРїРїС‹ СЃС‚СЂРѕРє (3 100 010), РёР· РєРѕС‚РѕСЂС‹С… СЃРѕСЃС‚РѕРёС‚ РёРЅРґРµРєСЃ - 4 РіСЂСѓРїРїС‹ СЃ state_description OPEN Рё COMPRESSED.
+-- CLOSED: total_rows = 1048576 - РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ РіСЂСѓРїРїС‹ СЃС‚СЂРѕРє
 
 SELECT * FROM sys.column_store_row_groups 
 WHERE object_id = OBJECT_ID('Proseware.Weblog');
 
--- 7. Сегменты для каждой группы строк: 2 или 3 для column_id
+-- 7. РЎРµРіРјРµРЅС‚С‹ РґР»СЏ РєР°Р¶РґРѕР№ РіСЂСѓРїРїС‹ СЃС‚СЂРѕРє: 2 РёР»Рё 3 РґР»СЏ column_id
 SELECT * FROM sys.column_store_segments;
 
--- 8. Удалить 10 строк из таблицы
+-- 8. РЈРґР°Р»РёС‚СЊ 10 СЃС‚СЂРѕРє РёР· С‚Р°Р±Р»РёС†С‹
 SET NOCOUNT OFF
 DELETE Proseware.Weblog WHERE WeblogID > 3100000;
 
--- 9. deleted bitmap содержит 10 строк
+-- 9. deleted bitmap СЃРѕРґРµСЂР¶РёС‚ 10 СЃС‚СЂРѕРє
 SELECT * FROM sys.internal_partitions
 WHERE object_id = OBJECT_ID('Proseware.Weblog');
 GO
 
--- 10. Удалить таблицы
+-- 10. РЈРґР°Р»РёС‚СЊ С‚Р°Р±Р»РёС†С‹
 DROP TABLE IF EXISTS Proseware.Weblog;
 DROP TABLE IF EXISTS Demo.Webpage
 DROP TABLE IF EXISTS  Demo.Weburl

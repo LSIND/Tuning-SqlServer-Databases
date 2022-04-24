@@ -1,5 +1,5 @@
+-- 1 –°–±–æ—Ä —Å—Ç–∞—Ç–∏—Å—Ç–∏–∫–∏ –∏–Ω–¥–µ–∫—Å–æ–≤
 
--- Step 1 - Collect physical index stats
 USE AdventureWorks;
 GO 
 
@@ -25,7 +25,7 @@ WHERE  ips.database_id = Db_id('AdventureWorks')
 ORDER BY  ips.avg_fragmentation_in_percent desc;
 GO 
 
--- Step 2 - Return current executing queries
+-- 2. –ü–µ—Ä–µ–∑–∞–ø—É—Å—Ç–∏—Ç—å —Ç–µ–∫—É—â–∏–µ –∑–∞–ø—Ä–æ—Å—ã
 
 SELECT 
 	DB_NAME(er.database_id) AS DatabaseName,
@@ -53,7 +53,7 @@ ORDER BY total_elapsed_time DESC;
 GO
 
 
--- Step 3 - Return I/O usage
+-- 3. I/O usage
 SELECT
 DB_NAME(VFS.Database_id) AS DataBaseName,
 mf.file_id,
@@ -74,7 +74,7 @@ GO
 
 
 
--- Ò‚Â‰ÂÌËˇ Ó· ÛÒÔÂ¯ÌÓÏ ÂÁÂ‚ÌÓÏ ÍÓÔËÓ‚‡ÌËË Á‡ ÔÓÒÎÂ‰ÌËÂ (N) ÏÂÒˇˆ‡.
+-- —Å–≤–µ–¥–µ–Ω–∏—è –æ–± —É—Å–ø–µ—à–Ω–æ–º —Ä–µ–∑–µ—Ä–≤–Ω–æ–º –∫–æ–ø–∏—Ä–æ–≤–∞–Ω–∏–∏ –∑–∞ –ø–æ—Å–ª–µ–¥–Ω–∏–µ (N) –º–µ—Å—è—Ü–µ–≤
 SELECT bs.database_name,
     backuptype = CASE
             WHEN bs.type = 'D'
@@ -111,5 +111,5 @@ SELECT bs.database_name,
 FROM msdb.dbo.backupset bs
 LEFT OUTER JOIN msdb.dbo.backupmediafamily bf ON bs.[media_set_id] = bf.[media_set_id]
 INNER JOIN msdb.dbo.backupmediaset bms ON bs.[media_set_id] = bms.[media_set_id]
-WHERE bs.backup_start_date > DATEADD(MONTH, -5, sysdatetime()) -- N = 5 - ÔÓÒÎÂ‰ÌËÂ 5 ÏÂÒˇˆÂ‚
+WHERE bs.backup_start_date > DATEADD(MONTH, -5, sysdatetime()) -- N = 5 - –ø–æ—Å–ª–µ–¥–Ω–∏–µ 5 –º–µ—Å—è—Ü–µ–≤
 ORDER BY bs.Backup_Start_Date DESC, bs.database_name ASC;

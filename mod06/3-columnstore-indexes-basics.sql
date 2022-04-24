@@ -1,6 +1,6 @@
--- 1. Пример агрегатов
+-- 1. РџСЂРёРјРµСЂ Р°РіСЂРµРіР°С‚РѕРІ
 -- rowstore clustered index [PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID]
--- database engine применяет leaf-level page scan для агрегирования значений для ProductID и OrderQty; 
+-- database engine РїСЂРёРјРµРЅСЏРµС‚ leaf-level page scan РґР»СЏ Р°РіСЂРµРіРёСЂРѕРІР°РЅРёСЏ Р·РЅР°С‡РµРЅРёР№ РґР»СЏ ProductID Рё OrderQty; 
 
 SELECT ProductID
  ,SUM(OrderQty) AS ProductTotalQuantitySales
@@ -8,12 +8,12 @@ FROM [Sales].[SalesOrderDetail]
 GROUP BY ProductID
 ORDER BY ProductID;
 
--- 1.1. Создание некластерного индекса COLUMNSTORE
+-- 1.1. РЎРѕР·РґР°РЅРёРµ РЅРµРєР»Р°СЃС‚РµСЂРЅРѕРіРѕ РёРЅРґРµРєСЃР° COLUMNSTORE
 CREATE NONCLUSTERED COLUMNSTORE INDEX ncci ON [Sales].[SalesOrderDetail]
 (ProductID, OrderQty);
 GO
 
--- 1.2 План запроса с использованием индекса COLUMNSTORE и без него
+-- 1.2 РџР»Р°РЅ Р·Р°РїСЂРѕСЃР° СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј РёРЅРґРµРєСЃР° COLUMNSTORE Рё Р±РµР· РЅРµРіРѕ
 SELECT ProductID
  ,SUM(OrderQty) AS ProductTotalQuantitySales
 FROM [Sales].[SalesOrderDetail]
@@ -30,33 +30,33 @@ GROUP BY ProductID
 ORDER BY ProductID;
 GO
 
--- 2. Внутреннее содержание индекса
+-- 2. Р’РЅСѓС‚СЂРµРЅРЅРµРµ СЃРѕРґРµСЂР¶Р°РЅРёРµ РёРЅРґРµРєСЃР°
 ALTER INDEX ncci ON [Sales].[SalesOrderDetail]
 REBUILD; 
 
 select * from sys.indexes
 where name = 'ncci';
 
--- Статистика возвращает NULL
+-- РЎС‚Р°С‚РёСЃС‚РёРєР° РІРѕР·РІСЂР°С‰Р°РµС‚ NULL
 DBCC SHOW_STATISTICS('[Sales].[SalesOrderDetail]','ncci');
 
--- сведения об индексах columnstore по группам строк
--- total_rows = Общее число строк, которые физически хранятся в группе строк
+-- СЃРІРµРґРµРЅРёСЏ РѕР± РёРЅРґРµРєСЃР°С… columnstore РїРѕ РіСЂСѓРїРїР°Рј СЃС‚СЂРѕРє
+-- total_rows = РћР±С‰РµРµ С‡РёСЃР»Рѕ СЃС‚СЂРѕРє, РєРѕС‚РѕСЂС‹Рµ С„РёР·РёС‡РµСЃРєРё С…СЂР°РЅСЏС‚СЃСЏ РІ РіСЂСѓРїРїРµ СЃС‚СЂРѕРє
 
 SELECT * FROM sys.column_store_row_groups;
 
--- Возвращает по одной строке для каждого сегмента столбца в индексе columnstore. 
--- Для каждого столбца группы строк имеется один сегмент столбца. 
--- таблица с 1 группой строк и 4 столбцами возвращает 4 строки
--- encoding_type: 2 = VALUE_HASH_BASED — нестроковый или двоичный столбец с общими значениями в словаре
+-- Р’РѕР·РІСЂР°С‰Р°РµС‚ РїРѕ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРµ РґР»СЏ РєР°Р¶РґРѕРіРѕ СЃРµРіРјРµРЅС‚Р° СЃС‚РѕР»Р±С†Р° РІ РёРЅРґРµРєСЃРµ columnstore. 
+-- Р”Р»СЏ РєР°Р¶РґРѕРіРѕ СЃС‚РѕР»Р±С†Р° РіСЂСѓРїРїС‹ СЃС‚СЂРѕРє РёРјРµРµС‚СЃСЏ РѕРґРёРЅ СЃРµРіРјРµРЅС‚ СЃС‚РѕР»Р±С†Р°. 
+-- С‚Р°Р±Р»РёС†Р° СЃ 1 РіСЂСѓРїРїРѕР№ СЃС‚СЂРѕРє Рё 4 СЃС‚РѕР»Р±С†Р°РјРё РІРѕР·РІСЂР°С‰Р°РµС‚ 4 СЃС‚СЂРѕРєРё
+-- encoding_type: 2 = VALUE_HASH_BASED вЂ” РЅРµСЃС‚СЂРѕРєРѕРІС‹Р№ РёР»Рё РґРІРѕРёС‡РЅС‹Р№ СЃС‚РѕР»Р±РµС† СЃ РѕР±С‰РёРјРё Р·РЅР°С‡РµРЅРёСЏРјРё РІ СЃР»РѕРІР°СЂРµ
 
 SELECT * FROM sys.column_store_segments; 
 
-SELECT * FROM sys.column_store_dictionaries; -- DELTA STORESELECT * FROM sys.column_store_row_groups WHERE delta_store_hobt_id IS NOT NULL; -- DELTASTORE После обновления данныхUPDATE[Sales].[SalesOrderDetail]SET [OrderQty] = [OrderQty] + 8WHERE [SalesOrderID] BETWEEN 43660 AND 43895;
+SELECT * FROM sys.column_store_dictionaries; -- DELTA STORESELECT * FROM sys.column_store_row_groups WHERE delta_store_hobt_id IS NOT NULL; -- DELTASTORE РџРѕСЃР»Рµ РѕР±РЅРѕРІР»РµРЅРёСЏ РґР°РЅРЅС‹С…UPDATE[Sales].[SalesOrderDetail]SET [OrderQty] = [OrderQty] + 8WHERE [SalesOrderID] BETWEEN 43660 AND 43895;
 SELECT * FROM sys.column_store_row_groups 
 WHERE delta_store_hobt_id IS NOT NULL; 
 
--- UPDATE = DELETE после INSERT
+-- UPDATE = DELETE РїРѕСЃР»Рµ INSERT
 -- Deleted Bitmap
 
 SELECT * FROM sys.internal_partitions

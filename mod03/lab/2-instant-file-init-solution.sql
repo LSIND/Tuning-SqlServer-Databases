@@ -1,4 +1,4 @@
-﻿-- 1. Изменить Security Policy
+-- 1. Изменить Security Policy
 -- С помощью Local Security Policy (secpol.msc) определите, кто имеет право "Выполнение задач по обслуживанию томов" (Perform volume maintenance right).
 -- secpol.msc --> Security Settings -> Local Policies -> User Rights Assignment.
 -- Найти в списке Perform volume maintenance right

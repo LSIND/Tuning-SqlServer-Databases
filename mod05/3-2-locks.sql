@@ -1,7 +1,7 @@
--- Запрос 1 
--- exclusive lock на 1 строку Sales.SalesTerritory внутри транзакции
--- XLOCK монопольные блокировки применяются и удерживаются до завершения транзакции: можно добавить уровень ROWLOCK, PAGLOCK или TABLOCK
--- The XLOCK table hint can be considered unreliable. This is because the SQL engine can ignore the hint if the data being accessed hasn’t changed since the oldest open transaction!
+-- Р—Р°РїСЂРѕСЃ 1 
+-- exclusive lock РЅР° 1 СЃС‚СЂРѕРєСѓ Sales.SalesTerritory РІРЅСѓС‚СЂРё С‚СЂР°РЅР·Р°РєС†РёРё
+-- XLOCK РјРѕРЅРѕРїРѕР»СЊРЅС‹Рµ Р±Р»РѕРєРёСЂРѕРІРєРё РїСЂРёРјРµРЅСЏСЋС‚СЃСЏ Рё СѓРґРµСЂР¶РёРІР°СЋС‚СЃСЏ РґРѕ Р·Р°РІРµСЂС€РµРЅРёСЏ С‚СЂР°РЅР·Р°РєС†РёРё: РјРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ СѓСЂРѕРІРµРЅСЊ ROWLOCK, PAGLOCK РёР»Рё TABLOCK
+-- The XLOCK table hint can be considered unreliable. This is because the SQL engine can ignore the hint if the data being accessed hasnвЂ™t changed since the oldest open transaction!
 USE AdventureWorks;
 GO
 
@@ -11,5 +11,5 @@ BEGIN TRANSACTION
 	SET [Name] = 'Test'
 	WHERE TerritoryID = 3 
 
--- Запрос 2
+-- Р—Р°РїСЂРѕСЃ 2
 ROLLBACK

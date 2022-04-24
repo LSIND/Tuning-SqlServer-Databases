@@ -6,9 +6,8 @@ SELECT *
 FROM sys.dm_os_process_memory;
 
 
-
--- Сравнить значения physical_memory_in_use_kb и virual_address_space_committed_kb
--- со значениями в столбцах Working Set(KB) and Commit(KB) для процесса sqlservr.exe в Resource Monitor
+-- РЎСЂР°РІРЅРёС‚СЊ Р·РЅР°С‡РµРЅРёСЏ physical_memory_in_use_kb Рё virual_address_space_committed_kb
+-- СЃРѕ Р·РЅР°С‡РµРЅРёСЏРјРё РІ СЃС‚РѕР»Р±С†Р°С… Working Set(KB) and Commit(KB) РґР»СЏ РїСЂРѕС†РµСЃСЃР° sqlservr.exe РІ Resource Monitor
 select
 physical_memory_in_use_kb AS [Working Set(KB)],
 locked_page_allocations_kb / 1024,

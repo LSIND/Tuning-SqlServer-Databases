@@ -1,7 +1,7 @@
--- пример рабочей нагрузки 1
+-- РїСЂРёРјРµСЂ СЂР°Р±РѕС‡РµР№ РЅР°РіСЂСѓР·РєРё 1
 DECLARE @start datetime2 = GETDATE();
 
-WHILE DATEDIFF(second, @start, GETDATE()) < 300 -- 5 минут
+WHILE DATEDIFF(second, @start, GETDATE()) < 300 -- 5 РјРёРЅСѓС‚
 BEGIN
 	SELECT TOP 5 a.name
 	FROM master.dbo.spt_values AS a

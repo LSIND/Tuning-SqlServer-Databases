@@ -3,21 +3,21 @@
 USE AdventureWorks;
 GO
 
--- I. Текущий уровень изоляции транзакций
+-- I. РўРµРєСѓС‰РёР№ СѓСЂРѕРІРµРЅСЊ РёР·РѕР»СЏС†РёРё С‚СЂР°РЅР·Р°РєС†РёР№
 SELECT name, snapshot_isolation_state_desc, is_read_committed_snapshot_on 
 FROM sys.databases;
 
--- II. Найти номер телефона для заказчика CustomerID = 19169: 725-555-0131
+-- II. РќР°Р№С‚Рё РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР° РґР»СЏ Р·Р°РєР°Р·С‡РёРєР° CustomerID = 19169: 725-555-0131
 SELECT CustomerID,  [PhoneNumber]
 FROM [Sales].[CustomerPII]
 WHERE CustomerID = 19169;
 
 
--- III. Работа с разными уровнями изоляции транзакций
--- Выполнить "Запрос 1" в 2-2-concurrency.sql
+-- III. Р Р°Р±РѕС‚Р° СЃ СЂР°Р·РЅС‹РјРё СѓСЂРѕРІРЅСЏРјРё РёР·РѕР»СЏС†РёРё С‚СЂР°РЅР·Р°РєС†РёР№
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 1" РІ 2-2-concurrency.sql
 
--- 1. Dirty Read в READ UNCOMMITTED
--- ISOLATION LEVEL READ UNCOMMITTED - номер телефона: 999-999-9999
+-- 1. Dirty Read РІ READ UNCOMMITTED
+-- ISOLATION LEVEL READ UNCOMMITTED - РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°: 999-999-9999
 SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
 GO
 SELECT CustomerID,  [PhoneNumber]
@@ -25,9 +25,9 @@ FROM [Sales].[CustomerPII]
 WHERE CustomerID = 19169;
 GO
 
--- 2. READ COMMITTED isolation с READ_COMMITTED_SNAPSHOT OFF предотвращает DIRTY READ
--- READCOMMITTEDLOCK table hint отключает версионность строк
--- Ожидание
+-- 2. READ COMMITTED isolation СЃ READ_COMMITTED_SNAPSHOT OFF РїСЂРµРґРѕС‚РІСЂР°С‰Р°РµС‚ DIRTY READ
+-- READCOMMITTEDLOCK table hint РѕС‚РєР»СЋС‡Р°РµС‚ РІРµСЂСЃРёРѕРЅРЅРѕСЃС‚СЊ СЃС‚СЂРѕРє
+-- РћР¶РёРґР°РЅРёРµ
 
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED
 GO
@@ -36,11 +36,11 @@ FROM [Sales].[CustomerPII] WITH (READCOMMITTEDLOCK)
 WHERE CustomerID = 19169
 GO
 
--- Выполнить "Запрос 2" в 2-2-concurrency.sql
--- Предыдущий запрос вернет значение: 725-555-0131
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 2" РІ 2-2-concurrency.sql
+-- РџСЂРµРґС‹РґСѓС‰РёР№ Р·Р°РїСЂРѕСЃ РІРµСЂРЅРµС‚ Р·РЅР°С‡РµРЅРёРµ: 725-555-0131
 
 
--- 3. non-repeatable read с READ COMMITTED isolation и READ_COMMITTED_SNAPSHOT OFF
+-- 3. non-repeatable read СЃ READ COMMITTED isolation Рё READ_COMMITTED_SNAPSHOT OFF
 
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED
 BEGIN TRANSACTION
@@ -48,15 +48,15 @@ SELECT CustomerID,  [PhoneNumber]
 FROM [Sales].[CustomerPII] WITH (READCOMMITTEDLOCK)
 WHERE CustomerID = 19169;
 
--- Выполнить "Запрос 3" в 2-2-concurrency.sql
--- Выполнить запрос; вернет значение: 333-333-3333
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 3" РІ 2-2-concurrency.sql
+-- Р’С‹РїРѕР»РЅРёС‚СЊ Р·Р°РїСЂРѕСЃ; РІРµСЂРЅРµС‚ Р·РЅР°С‡РµРЅРёРµ: 333-333-3333
 
 SELECT CustomerID,  [PhoneNumber]
 FROM [Sales].[CustomerPII] WITH (READCOMMITTEDLOCK)
 WHERE CustomerID = 19169;
 COMMIT
 
--- 4. REPEATABLE READ isolation предотвращает non-repeatable read
+-- 4. REPEATABLE READ isolation РїСЂРµРґРѕС‚РІСЂР°С‰Р°РµС‚ non-repeatable read
 SET TRANSACTION ISOLATION LEVEL REPEATABLE READ
 GO
 BEGIN TRANSACTION
@@ -64,15 +64,15 @@ BEGIN TRANSACTION
 	FROM [Sales].[CustomerPII]
 	WHERE CustomerID = 19169;
 
--- Выполнить "Запрос 4" в 2-2-concurrency.sql
--- "Запрос 4" ожидает
--- Выполнить запрос; вернет значение: 333-333-3333. "Запрос 4" также выполнится и изменит данные на 444-444-4444
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 4" РІ 2-2-concurrency.sql
+-- "Р—Р°РїСЂРѕСЃ 4" РѕР¶РёРґР°РµС‚
+-- Р’С‹РїРѕР»РЅРёС‚СЊ Р·Р°РїСЂРѕСЃ; РІРµСЂРЅРµС‚ Р·РЅР°С‡РµРЅРёРµ: 333-333-3333. "Р—Р°РїСЂРѕСЃ 4" С‚Р°РєР¶Рµ РІС‹РїРѕР»РЅРёС‚СЃСЏ Рё РёР·РјРµРЅРёС‚ РґР°РЅРЅС‹Рµ РЅР° 444-444-4444
 	SELECT CustomerID,  [PhoneNumber]
 	FROM [Sales].[CustomerPII]
 	WHERE CustomerID = 19169;
 COMMIT
 
--- 5. phantom read при REPEATABLE READ 
+-- 5. phantom read РїСЂРё REPEATABLE READ 
 SET TRANSACTION ISOLATION LEVEL REPEATABLE READ
 GO
 BEGIN TRANSACTION
@@ -80,14 +80,14 @@ BEGIN TRANSACTION
 	FROM [Sales].[CustomerPII]
 	WHERE [PhoneNumber] < '111-555-2222';
 
--- Выполнить "Запрос 5" в 2-2-concurrency.sql
--- Выполнить запрос. Значение количества заказчиков увеличилось на 1
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 5" РІ 2-2-concurrency.sql
+-- Р’С‹РїРѕР»РЅРёС‚СЊ Р·Р°РїСЂРѕСЃ. Р—РЅР°С‡РµРЅРёРµ РєРѕР»РёС‡РµСЃС‚РІР° Р·Р°РєР°Р·С‡РёРєРѕРІ СѓРІРµР»РёС‡РёР»РѕСЃСЊ РЅР° 1
 	SELECT COUNT(*) AS CustCount 
 	FROM [Sales].[CustomerPII]
 	WHERE [PhoneNumber] < '111-555-2222';
 COMMIT
 
--- 6. SERIALIZABLE предотвращает phantom read
+-- 6. SERIALIZABLE РїСЂРµРґРѕС‚РІСЂР°С‰Р°РµС‚ phantom read
 SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
 GO
 BEGIN TRANSACTION
@@ -95,22 +95,22 @@ BEGIN TRANSACTION
 	FROM [Sales].[CustomerPII]
 	WHERE [PhoneNumber] < '111-555-2222';
 
--- Выполнить "Запрос 5" в 2-2-concurrency.sql. Запрос 5 ожидает
--- Выполнить запрос. Значение количества заказчиков не изменилось
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 5" РІ 2-2-concurrency.sql. Р—Р°РїСЂРѕСЃ 5 РѕР¶РёРґР°РµС‚
+-- Р’С‹РїРѕР»РЅРёС‚СЊ Р·Р°РїСЂРѕСЃ. Р—РЅР°С‡РµРЅРёРµ РєРѕР»РёС‡РµСЃС‚РІР° Р·Р°РєР°Р·С‡РёРєРѕРІ РЅРµ РёР·РјРµРЅРёР»РѕСЃСЊ
 	SELECT COUNT(*) AS CustCount 
 	FROM [Sales].[CustomerPII]
 	WHERE [PhoneNumber] < '111-555-2222';
 COMMIT
 
--- 7. READ COMMITTED с READ_COMMITTED_SNAPSHOT ON
--- Изменить номер телефона для CustomerID = 19169
+-- 7. READ COMMITTED СЃ READ_COMMITTED_SNAPSHOT ON
+-- РР·РјРµРЅРёС‚СЊ РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР° РґР»СЏ CustomerID = 19169
 UPDATE [Sales].[CustomerPII]
 SET [PhoneNumber] = N'170-555-0127' 
 WHERE CustomerID = 19169;
 GO
 
--- Выполнить "Запрос 6" в 2-2-concurrency.sql. 
--- Выполнить запрос. Запрос ожидает
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 6" РІ 2-2-concurrency.sql. 
+-- Р’С‹РїРѕР»РЅРёС‚СЊ Р·Р°РїСЂРѕСЃ. Р—Р°РїСЂРѕСЃ РѕР¶РёРґР°РµС‚
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED
 GO
 BEGIN TRANSACTION 
@@ -118,8 +118,8 @@ BEGIN TRANSACTION
 	FROM [Sales].[CustomerPII]
 	WHERE CustomerID = 19169;
 
--- Выполнить "Запрос 7" в 2-2-concurrency.sql. 
--- Выполнить запрос: 616-666-6666
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 7" РІ 2-2-concurrency.sql. 
+-- Р’С‹РїРѕР»РЅРёС‚СЊ Р·Р°РїСЂРѕСЃ: 616-666-6666
 	SELECT CustomerID, [PhoneNumber]
 	FROM [Sales].[CustomerPII]
 	WHERE CustomerID = 19169;
@@ -131,8 +131,8 @@ SET [PhoneNumber] = N'170-555-0127'
 WHERE CustomerID = 19169;
 GO
 
--- Выполнить "Запрос 6" в 2-2-concurrency.sql. 
--- Выполнить запрос.
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 6" РІ 2-2-concurrency.sql. 
+-- Р’С‹РїРѕР»РЅРёС‚СЊ Р·Р°РїСЂРѕСЃ.
 
 /*ALTER DATABASE AdventureWorks
 SET ALLOW_SNAPSHOT_ISOLATION ON
@@ -145,20 +145,20 @@ BEGIN TRANSACTION
 	FROM [Sales].[CustomerPII]
 	WHERE CustomerID = 19169;
 
--- Выполнить "Запрос 7" в 2-2-concurrency.sql. 
--- Выполнить запрос: значение не изменилось в рамках этой транзакции
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 7" РІ 2-2-concurrency.sql. 
+-- Р’С‹РїРѕР»РЅРёС‚СЊ Р·Р°РїСЂРѕСЃ: Р·РЅР°С‡РµРЅРёРµ РЅРµ РёР·РјРµРЅРёР»РѕСЃСЊ РІ СЂР°РјРєР°С… СЌС‚РѕР№ С‚СЂР°РЅР·Р°РєС†РёРё
 SELECT CustomerID, [PhoneNumber]
 	FROM [Sales].[CustomerPII]
 	WHERE CustomerID = 19169;
 COMMIT
 
--- 9. Конфликт при обновлении с SNAPSHOT:
+-- 9. РљРѕРЅС„Р»РёРєС‚ РїСЂРё РѕР±РЅРѕРІР»РµРЅРёРё СЃ SNAPSHOT:
 UPDATE [Sales].[CustomerPII]
 SET [PhoneNumber] = N'170-555-0127' 
 WHERE CustomerID = 19169;
 GO
--- Выполнить "Запрос 6" в 2-2-concurrency.sql. 
--- Выполнить запрос. Ожидание
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 6" РІ 2-2-concurrency.sql. 
+-- Р’С‹РїРѕР»РЅРёС‚СЊ Р·Р°РїСЂРѕСЃ. РћР¶РёРґР°РЅРёРµ
 SET TRANSACTION ISOLATION LEVEL SNAPSHOT
 GO
 BEGIN TRANSACTION 
@@ -166,8 +166,8 @@ BEGIN TRANSACTION
 	SET [PhoneNumber] = N'777-555-7777'
 	WHERE CustomerID = 19169;
 
--- Выполнить "Запрос 7" в 2-2-concurrency.sql. 
--- Ошибка: откат транзакции
+-- Р’С‹РїРѕР»РЅРёС‚СЊ "Р—Р°РїСЂРѕСЃ 7" РІ 2-2-concurrency.sql. 
+-- РћС€РёР±РєР°: РѕС‚РєР°С‚ С‚СЂР°РЅР·Р°РєС†РёРё
 
--- Убедиться, что нет открытых транзакций
+-- РЈР±РµРґРёС‚СЊСЃСЏ, С‡С‚Рѕ РЅРµС‚ РѕС‚РєСЂС‹С‚С‹С… С‚СЂР°РЅР·Р°РєС†РёР№
 SELECT @@TRANCOUNT;

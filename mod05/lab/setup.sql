@@ -1,9 +1,9 @@
--- Скрипт настройки для развертывания новых объектов БД - Proseware
+-- РЎРєСЂРёРїС‚ РЅР°СЃС‚СЂРѕР№РєРё РґР»СЏ СЂР°Р·РІРµСЂС‚С‹РІР°РЅРёСЏ РЅРѕРІС‹С… РѕР±СЉРµРєС‚РѕРІ Р‘Р” - Proseware
 
 USE AdventureWorks;
 GO
 
--- Предварительное удаление объектов
+-- РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕРµ СѓРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ
 IF OBJECT_ID(N'[FK_Campaign_SalesTerritory]') IS NOT NULL
 BEGIN
 ALTER TABLE Proseware.Campaign
@@ -25,7 +25,7 @@ DROP SCHEMA IF EXISTS Proseware;
 GO
 -------
 
--- Создание объектов для ЛР5
+-- РЎРѕР·РґР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ РґР»СЏ Р›Р 5
 
 
 CREATE SCHEMA Proseware;

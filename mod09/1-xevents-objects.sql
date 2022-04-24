@@ -6,14 +6,14 @@ SELECT * FROM sys.dm_xe_packages;
 SELECT * FROM sys.dm_xe_objects
 WHERE object_type = 'event';
 
--- 3. Ключевые слова Keyword
+-- 3. РљР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° Keyword
 
 SELECT map_value AS keyword
 FROM sys.dm_xe_map_values
 WHERE name = 'keyword_map'
 ORDER BY keyword;
 
--- 4. События и их пакеты
+-- 4. РЎРѕР±С‹С‚РёСЏ Рё РёС… РїР°РєРµС‚С‹
 SELECT xp.name AS package_name,
 xo.name AS event_name,
 xo.[description] AS event_description
@@ -23,26 +23,26 @@ ON xp.guid = xo.package_guid
 WHERE object_type = 'event'
 ORDER BY package_name, event_name;
 
--- 5. Атрибуты событий sys.dm_xe_objects
+-- 5. РђС‚СЂРёР±СѓС‚С‹ СЃРѕР±С‹С‚РёР№ sys.dm_xe_objects
 SELECT xoc.* FROM sys.dm_xe_objects AS xo
 JOIN sys.dm_xe_object_columns AS xoc
 ON xoc.object_package_guid = xo.package_guid AND xoc.object_name = xo.name
 WHERE xo.object_type = 'event';
 
--- 6. Предикаты
+-- 6. РџСЂРµРґРёРєР°С‚С‹
 SELECT * FROM sys.dm_xe_objects
 WHERE object_type LIKE 'pred%'
 ORDER BY object_type, name;
 
--- 7. Действия
+-- 7. Р”РµР№СЃС‚РІРёСЏ
 SELECT * FROM sys.dm_xe_objects
 WHERE object_type = 'action';
 
--- 8. Цели
+-- 8. Р¦РµР»Рё
 SELECT * FROM sys.dm_xe_objects
 WHERE object_type = 'target';
 
--- 9. Типы
+-- 9. РўРёРїС‹
 SELECT * FROM sys.dm_xe_objects
 WHERE object_type = 'type';
 
@@ -53,8 +53,8 @@ ORDER BY name, map_key;
 select map_key, map_value from sys.dm_xe_map_values  
 where name = 'lock_mode'  
 
--- 11. Сессии
+-- 11. РЎРµСЃСЃРёРё
 SELECT * FROM sys.dm_xe_sessions;
 
--- Серверные
+-- РЎРµСЂРІРµСЂРЅС‹Рµ
 SELECT * FROM sys.server_event_sessions;

@@ -1,7 +1,7 @@
 USE AdventureWorks;
 GO
 
--- Предварительное удаление объектов
+-- РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕРµ СѓРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ
 IF OBJECT_ID(N'[FK_Campaign_SalesTerritory]') IS NOT NULL
 BEGIN
 ALTER TABLE Proseware.Campaign
@@ -31,7 +31,7 @@ GO
 
 -------
 
--- Создание объектов для ЛР8
+-- РЎРѕР·РґР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ РґР»СЏ Р›Р 8
 
 CREATE SCHEMA Proseware;
 GO

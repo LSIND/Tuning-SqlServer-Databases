@@ -1,5 +1,5 @@
 -- EX3 - load script 2
--- Цикл до 60 минут или пока не будет создана таблица ##stopload2
+-- Г·РёРєР» РґРѕ 60 РјРёРЅСѓС‚ РёР»Рё РїРѕРєР° РЅРµ Р±СѓРґРµС‚ СЃРѕР·РґР°РЅР° С‚Р°Р±Р»РёС†Р° ##stopload2
 DROP TABLE IF EXISTS tempdb..##stopload2;
 GO
 USE AdventureWorks;

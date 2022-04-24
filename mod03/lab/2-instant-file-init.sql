@@ -1,4 +1,4 @@
-﻿-- 1. Изменить Security Policy
+-- 1. Изменить Security Policy
 -- С помощью Local Security Policy (secpol.msc) определите, кто имеет право "Выполнение задач по обслуживанию томов" (Perform volume maintenance right).
 
 -- 2. Удалить права Administrators, NT SERVICE\MSSQLSERVER.

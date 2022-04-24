@@ -1,15 +1,15 @@
--- 1. Запустите рабочую нагрузку
--- Откройте Powershell от имени администратора, перейдите в папку ..Tuning-SqlServer-Databases\mod06\Lab\
--- Выполните скрипт .\1-start-load.ps1
--- * Если PS выдает ошибку об отсутствии цифровой подписи, в консоли напишите Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
--- Скрипт ps запустит 10 workers, выполняющих один и тот же скрипт 1-start-load-sql.sql
--- Запомните длительность выполнения (например, Finished after  00:00:19.4165261)
+-- 1. Р—Р°РїСѓСЃС‚РёС‚Рµ СЂР°Р±РѕС‡СѓСЋ РЅР°РіСЂСѓР·РєСѓ
+-- РћС‚РєСЂРѕР№С‚Рµ Powershell РѕС‚ РёРјРµРЅРё Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°, РїРµСЂРµР№РґРёС‚Рµ РІ РїР°РїРєСѓ ..Tuning-SqlServer-Databases\mod06\Lab\
+-- Р’С‹РїРѕР»РЅРёС‚Рµ СЃРєСЂРёРїС‚ .\1-start-load.ps1
+-- * Р•СЃР»Рё PS РІС‹РґР°РµС‚ РѕС€РёР±РєСѓ РѕР± РѕС‚СЃСѓС‚СЃС‚РІРёРё С†РёС„СЂРѕРІРѕР№ РїРѕРґРїРёСЃРё, РІ РєРѕРЅСЃРѕР»Рё РЅР°РїРёС€РёС‚Рµ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+-- РЎРєСЂРёРїС‚ ps Р·Р°РїСѓСЃС‚РёС‚ 10 workers, РІС‹РїРѕР»РЅСЏСЋС‰РёС… РѕРґРёРЅ Рё С‚РѕС‚ Р¶Рµ СЃРєСЂРёРїС‚ 1-start-load-sql.sql
+-- Р—Р°РїРѕРјРЅРёС‚Рµ РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊ РІС‹РїРѕР»РЅРµРЅРёСЏ (РЅР°РїСЂРёРјРµСЂ, Finished after  00:00:19.4165261)
 ---------------------------------------------------------------------
 
 ---------------------------------------------------------------------
--- 2. Просмотрите статистику из sys.stats для таблиц Proseware.WebResponse, 
+-- 2. РџСЂРѕСЃРјРѕС‚СЂРёС‚Рµ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РёР· sys.stats РґР»СЏ С‚Р°Р±Р»РёС† Proseware.WebResponse, 
 -- Proseware.Campaign, Proseware.CampaignAdvert.
--- Требуется ли обновление статистики?
+-- РўСЂРµР±СѓРµС‚СЃСЏ Р»Рё РѕР±РЅРѕРІР»РµРЅРёРµ СЃС‚Р°С‚РёСЃС‚РёРєРё?
 ---------------------------------------------------------------------
 USE AdventureWorks;
 GO
@@ -20,31 +20,31 @@ WHERE OBJECT_NAME(object_id) IN ('Campaign','CampaignAdvert','WebResponse')
 ORDER BY object_id, stats_id;
 
 ---------------------------------------------------------------------
--- 3. Изучите статистику IX_WebResponse_CampaignAdvertID с помощью DBCC SHOW_STATISTICS 
--- Сколько строк содержит таблица Proseware.WebResponse?
+-- 3. РР·СѓС‡РёС‚Рµ СЃС‚Р°С‚РёСЃС‚РёРєСѓ IX_WebResponse_CampaignAdvertID СЃ РїРѕРјРѕС‰СЊСЋ DBCC SHOW_STATISTICS 
+-- РЎРєРѕР»СЊРєРѕ СЃС‚СЂРѕРє СЃРѕРґРµСЂР¶РёС‚ С‚Р°Р±Р»РёС†Р° Proseware.WebResponse?
 ---------------------------------------------------------------------
 DBCC SHOW_STATISTICS ('Proseware.WebResponse','IX_WebResponse_CampaignAdvertID');
 
 
--- Определите реальное количество строк таблицы Proseware.WebResponse
+-- РћРїСЂРµРґРµР»РёС‚Рµ СЂРµР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє С‚Р°Р±Р»РёС†С‹ Proseware.WebResponse
 SELECT rows FROM sys.partitions 
 WHERE object_id = OBJECT_ID('Proseware.WebResponse');
 
 ---------------------------------------------------------------------
--- 4. Обновите статистику для всех строк (WITH FULLSCAN или SAMPLE 100 PERCENT)
+-- 4. РћР±РЅРѕРІРёС‚Рµ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РґР»СЏ РІСЃРµС… СЃС‚СЂРѕРє (WITH FULLSCAN РёР»Рё SAMPLE 100 PERCENT)
 ---------------------------------------------------------------------
 UPDATE STATISTICS Proseware.WebResponse WITH FULLSCAN;
 
 
--- Снова изучите статистику IX_WebResponse_CampaignAdvertID с помощью DBCC SHOW_STATISTICS 
--- Сколько строк содержит таблица Proseware.WebResponse?
+-- РЎРЅРѕРІР° РёР·СѓС‡РёС‚Рµ СЃС‚Р°С‚РёСЃС‚РёРєСѓ IX_WebResponse_CampaignAdvertID СЃ РїРѕРјРѕС‰СЊСЋ DBCC SHOW_STATISTICS 
+-- РЎРєРѕР»СЊРєРѕ СЃС‚СЂРѕРє СЃРѕРґРµСЂР¶РёС‚ С‚Р°Р±Р»РёС†Р° Proseware.WebResponse?
 DBCC SHOW_STATISTICS ('Proseware.WebResponse','IX_WebResponse_CampaignAdvertID');
 
--- Обновите все статистики для таблицы Proseware.CampaignAdvert
--- с сэмплированием 50% строк таблицы.
+-- РћР±РЅРѕРІРёС‚Рµ РІСЃРµ СЃС‚Р°С‚РёСЃС‚РёРєРё РґР»СЏ С‚Р°Р±Р»РёС†С‹ Proseware.CampaignAdvert
+-- СЃ СЃСЌРјРїР»РёСЂРѕРІР°РЅРёРµРј 50% СЃС‚СЂРѕРє С‚Р°Р±Р»РёС†С‹.
 UPDATE STATISTICS Proseware.CampaignAdvert WITH SAMPLE 50 PERCENT;
 
 ---------------------------------------------------------------------
--- 5. Снова выполните скрипт .\1-start-load.ps1
--- Запомните длительность выполнения 
--- Сравните результаты с п.1
+-- 5. РЎРЅРѕРІР° РІС‹РїРѕР»РЅРёС‚Рµ СЃРєСЂРёРїС‚ .\1-start-load.ps1
+-- Р—Р°РїРѕРјРЅРёС‚Рµ РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊ РІС‹РїРѕР»РЅРµРЅРёСЏ 
+-- РЎСЂР°РІРЅРёС‚Рµ СЂРµР·СѓР»СЊС‚Р°С‚С‹ СЃ Рї.1

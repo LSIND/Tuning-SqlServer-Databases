@@ -1,4 +1,4 @@
--- Откройте транзакцию и выполните инструкции в 2-2-blocked-tran.sql
+-- РћС‚РєСЂРѕР№С‚Рµ С‚СЂР°РЅР·Р°РєС†РёСЋ Рё РІС‹РїРѕР»РЅРёС‚Рµ РёРЅСЃС‚СЂСѓРєС†РёРё РІ 2-2-blocked-tran.sql
 USE AdventureWorks;
 GO
 
@@ -10,5 +10,5 @@ BEGIN TRAN
 	SET  [Name]= N'New Product Demo Update'
 	WHERE ProductID = 1;
 
--- Выполните  команду после п.9 скрипта 2-thread-lifecycle.sql
+-- Р’С‹РїРѕР»РЅРёС‚Рµ  РєРѕРјР°РЅРґСѓ РїРѕСЃР»Рµ Рї.9 СЃРєСЂРёРїС‚Р° 2-thread-lifecycle.sql
 --ROLLBACK

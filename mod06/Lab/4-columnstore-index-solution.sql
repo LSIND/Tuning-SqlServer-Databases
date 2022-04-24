@@ -2,9 +2,9 @@ USE AdventureWorks;
 GO
 
 -------------------------------------
--- 1. Создайте некластерный колоночный индекс (Columnstore Index) на таблицу Proseware.WebResponse
--- Имя индекса IX_NCI_WebResponse
--- Индекс покрывает следующие столбцы: log_date, page_url, browser_name, page_visit_time_seconds
+-- 1. РЎРѕР·РґР°Р№С‚Рµ РЅРµРєР»Р°СЃС‚РµСЂРЅС‹Р№ РєРѕР»РѕРЅРѕС‡РЅС‹Р№ РёРЅРґРµРєСЃ (Columnstore Index) РЅР° С‚Р°Р±Р»РёС†Сѓ Proseware.WebResponse
+-- РРјСЏ РёРЅРґРµРєСЃР° IX_NCI_WebResponse
+-- РРЅРґРµРєСЃ РїРѕРєСЂС‹РІР°РµС‚ СЃР»РµРґСѓСЋС‰РёРµ СЃС‚РѕР»Р±С†С‹: log_date, page_url, browser_name, page_visit_time_seconds
 -------------------------------------
 
 CREATE COLUMNSTORE INDEX IX_NCI_WebResponse
@@ -12,8 +12,8 @@ ON Proseware.WebResponse (log_date, page_url, browser_name, page_visit_time_seco
 GO
 
 -------------------------------------
--- 2. Создайте таблицу Proseware.Demographic с кластерным колоночным индексом (Columnstore)
--- Имя индекса PK_Proseware_Weblog
+-- 2. РЎРѕР·РґР°Р№С‚Рµ С‚Р°Р±Р»РёС†Сѓ Proseware.Demographic СЃ РєР»Р°СЃС‚РµСЂРЅС‹Рј РєРѕР»РѕРЅРѕС‡РЅС‹Рј РёРЅРґРµРєСЃРѕРј (Columnstore)
+-- РРјСЏ РёРЅРґРµРєСЃР° PK_Proseware_Weblog
 
 CREATE TABLE Proseware.Demographic
    (	DemographicID bigint NOT NULL,
@@ -27,28 +27,28 @@ CREATE TABLE Proseware.Demographic
 		INDEX PK_Proseware_Weblog CLUSTERED COLUMNSTORE
 	);
 
--- 3. Выполните запрос ан вставку одного значения в Proseware.Demographic
+-- 3. Р’С‹РїРѕР»РЅРёС‚Рµ Р·Р°РїСЂРѕСЃ Р°РЅ РІСЃС‚Р°РІРєСѓ РѕРґРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РІ Proseware.Demographic
 INSERT INTO Proseware.Demographic (DemographicID)
 VALUES (1);
 
--- 4. Убедитесь, что в Proseware.Demographic добавилась одна строка
+-- 4. РЈР±РµРґРёС‚РµСЃСЊ, С‡С‚Рѕ РІ Proseware.Demographic РґРѕР±Р°РІРёР»Р°СЃСЊ РѕРґРЅР° СЃС‚СЂРѕРєР°
 -------------------------------------
 
 SELECT * FROM Proseware.Demographic;
 
 -------------------------------------
--- 5. Добавьте некластерный уникальный индекс в таблицу Proseware.Demographic с кластерным колоночным индексом
--- Имя индекса - IX_Demographic_DemographicID, столбец - DemographicID
+-- 5. Р”РѕР±Р°РІСЊС‚Рµ РЅРµРєР»Р°СЃС‚РµСЂРЅС‹Р№ СѓРЅРёРєР°Р»СЊРЅС‹Р№ РёРЅРґРµРєСЃ РІ С‚Р°Р±Р»РёС†Сѓ Proseware.Demographic СЃ РєР»Р°СЃС‚РµСЂРЅС‹Рј РєРѕР»РѕРЅРѕС‡РЅС‹Рј РёРЅРґРµРєСЃРѕРј
+-- РРјСЏ РёРЅРґРµРєСЃР° - IX_Demographic_DemographicID, СЃС‚РѕР»Р±РµС† - DemographicID
 -------------------------------------
 
 CREATE UNIQUE NONCLUSTERED INDEX IX_Demographic_DemographicID
 ON Proseware.Demographic (DemographicID);
 
 
--- 6. Запустите вставку данных. Каков результат?
+-- 6. Р—Р°РїСѓСЃС‚РёС‚Рµ РІСЃС‚Р°РІРєСѓ РґР°РЅРЅС‹С…. РљР°РєРѕРІ СЂРµР·СѓР»СЊС‚Р°С‚?
 INSERT INTO Proseware.Demographic (DemographicID)
 VALUES (1);
 
--- 7. Удалите таблицу Proseware.Demographic
+-- 7. РЈРґР°Р»РёС‚Рµ С‚Р°Р±Р»РёС†Сѓ Proseware.Demographic
 
 DROP TABLE IF EXISTS Proseware.Demographic;

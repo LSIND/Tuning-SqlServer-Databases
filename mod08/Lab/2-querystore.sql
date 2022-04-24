@@ -1,19 +1,19 @@
 ---------------------------------------------------------------------
--- 1. Откройте Powershell от имени администратора, перейдите в папку ..Tuning-SqlServer-Databases\mod08\lab
--- Выполните скрипт .\start-load-ex.ps1 workload2.sql
--- Скрипт запустит 10 фоновых работ (job), выполняющих один и тот же скрипт workload2.sql
+-- 1. РћС‚РєСЂРѕР№С‚Рµ Powershell РѕС‚ РёРјРµРЅРё Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°, РїРµСЂРµР№РґРёС‚Рµ РІ РїР°РїРєСѓ ..Tuning-SqlServer-Databases\mod08\lab
+-- Р’С‹РїРѕР»РЅРёС‚Рµ СЃРєСЂРёРїС‚ .\start-load-ex.ps1 workload2.sql
+-- РЎРєСЂРёРїС‚ Р·Р°РїСѓСЃС‚РёС‚ 10 С„РѕРЅРѕРІС‹С… СЂР°Р±РѕС‚ (job), РІС‹РїРѕР»РЅСЏСЋС‰РёС… РѕРґРёРЅ Рё С‚РѕС‚ Р¶Рµ СЃРєСЂРёРїС‚ workload2.sql
 ---------------------------------------------------------------------
 
--- 2. Откройте свойства БД TSQL
+-- 2. РћС‚РєСЂРѕР№С‚Рµ СЃРІРѕР№СЃС‚РІР° Р‘Р” TSQL
 -- Query Store -> Operation Mode (Requested) = Read Write
 -- Query Store -> Statistics Collection Interval = 1 minute
 
--- 3. В Object Explorer раскройте TSQL-> Query Store -> Top Resource Consuming Queries
--- Определите query id в гистограмме слева
+-- 3. Р’ Object Explorer СЂР°СЃРєСЂРѕР№С‚Рµ TSQL-> Query Store -> Top Resource Consuming Queries
+-- РћРїСЂРµРґРµР»РёС‚Рµ query id РІ РіРёСЃС‚РѕРіСЂР°РјРјРµ СЃР»РµРІР°
 
 
 ---------------------------------------------------------------------
--- 4. Создайте недостающий индекс
+-- 4. РЎРѕР·РґР°Р№С‚Рµ РЅРµРґРѕСЃС‚Р°СЋС‰РёР№ РёРЅРґРµРєСЃ
 ---------------------------------------------------------------------
 USE TSQL
 GO
@@ -23,13 +23,13 @@ INCLUDE (ResponseDate,ConvertedToSale,ConvertedSaleValueUSD)
 GO
 
 
--- 5. В Object Explorer раскройте TSQL-> Query Store -> Tracked Queries.
--- В поиске введите query id из п.3
--- Выберите план -> нажмите Force Plan
--- Просмотрите отчет Top Resource Consuming Queries
+-- 5. Р’ Object Explorer СЂР°СЃРєСЂРѕР№С‚Рµ TSQL-> Query Store -> Tracked Queries.
+-- Р’ РїРѕРёСЃРєРµ РІРІРµРґРёС‚Рµ query id РёР· Рї.3
+-- Р’С‹Р±РµСЂРёС‚Рµ РїР»Р°РЅ -> РЅР°Р¶РјРёС‚Рµ Force Plan
+-- РџСЂРѕСЃРјРѕС‚СЂРёС‚Рµ РѕС‚С‡РµС‚ Top Resource Consuming Queries
 
 
 ---------------------------------------------------------------------
--- 6. Остановите нагрузку
+-- 6. РћСЃС‚Р°РЅРѕРІРёС‚Рµ РЅР°РіСЂСѓР·РєСѓ
 ---------------------------------------------------------------------
 CREATE TABLE ##stopload(id int);
