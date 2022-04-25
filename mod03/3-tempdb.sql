@@ -47,3 +47,6 @@ SELECT session_id,
   SUM(internal_objects_dealloc_page_count) AS task_internal_objects_dealloc_page_count
 FROM sys.dm_db_task_space_usage
 GROUP BY session_id;
+
+
+SELECT * FROM sys.dm_os_performance_counters WHERE counter_name IN ( 'Longest Transaction Running Time' ,'Version Store Size (KB)' ,'Version Cleanup rate (KB/s)' ,'Version Generation rate (KB/s)' );

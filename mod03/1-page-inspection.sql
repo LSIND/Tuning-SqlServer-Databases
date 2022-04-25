@@ -1,18 +1,87 @@
 -- 1. >= sql server 2016
--- 1 = database table will get the first 8 pages from the mixed extent and subsequent pages from the uniform extent. 
--- 0 = all the pages for the table are from the uniform extent.
--- TempDB and user databases by default will have the page allocated from uniform extent.
+-- 1 = Первый Экстент - Mixed, остальные с Uniform. 
+-- 0 = Все страницы из Uniform extent.
+-- >= SQL Server 2016 - TempDB и пользовательские БД получают пространство из uniform extent.
+
+-----------------------------------------------------------
+USE master;
+GO
+
 SELECT  [name], [is_mixed_page_allocation_on]
 FROM sys.databases;
 GO
 
-ALTER DATABASE [DBNAME] 
+--1. Создадим БД с одной таблицей
+-- > SQl Server 2016 - is_mixed_page_allocation - OFF
+-- первым выдается UniformExtent
+CREATE DATABASE DemoAlloc 
+GO
+USE DemoAlloc
+GO
+
+CREATE TABLE DemoTable
+(
+    DemoColumn CHAR(8000)
+)
+GO
+-- Использование пространства таблицей DemoTable - 0
+SP_SPACEUSED DemoTable
+
+-- Вставка данных 9 раз (CHAR)
+INSERT INTO DemoTable VALUES ('B')
+
+EXECUTE SP_SPACEUSED DemoTable
+GO 9 
+-- 1 строка -72 Кб зарезервировано = 64Кб Uniform Extent + 8 Кб Mixed Extent IAM
+-- не использовано 56 Кб = 64 - 8
+-- строки 2-8: unused - умеьшается на 8 Кб
+-- 9 строка - + еще один экстент: 72 + 64 = 136 Кб
+
+-- 10 страниц (1 IAM Page из mixed extent + 9 Data pages из 2х Uniform extents).
+DBCC IND ('DemoAlloc','DemoTable', -1)
+
+-- 2. Включение опции БД MIXED_PAGE_ALLOCATION ON
+USE master;
+GO
+
+ALTER DATABASE DemoAlloc 
 SET MIXED_PAGE_ALLOCATION ON
 GO
+
+DROP TABLE IF EXISTS DemoTable
+
+CREATE TABLE DemoTable
+(
+    DemoColumn CHAR(8000)
+)
+GO
+-- Использование пространства таблицей DemoTable - 0
+SP_SPACEUSED DemoTable
+
+-- Вставка данных 9 раз (CHAR)
+INSERT INTO DemoTable VALUES ('B')
+
+EXECUTE SP_SPACEUSED DemoTable
+GO 9 
+-- 1 строка -16 Кб зарезервировано = 1Кб Page из Mixed Extent + 8 Кб Mixed Extent IAM
+-- не использовано 0 Кб = 64 - 8
+-- строки 2-8: unused - не изменяеся; reserved - увеличивается на 8 Кб
+-- 9 строка - + добавлен Uniform Extent: 72 + 64 = 136 Кб
+
+
+-- 10 страниц (1 IAM Page из mixed extent + 9 Data pages (8 из Mixed и 1 из Uniform).
+DBCC IND ('DemoAlloc','DemoTable', -1)
+
+DROP DATABASE DemoAlloc;
+-----------------------------------------------------------
 
 --2. SP_SPACEUSED Выводит количество строк, зарезервированное место на диске и место на диске, которое используется таблицей, 
 --индексированным представлением или очередью компонента Компонент Service Broker в текущей БД, 
 --либо выводит место на диске, зарезервированное и используемое всей базой данных.
+
+USE AdventureWorks;
+GO
+
 EXECUTE SP_SPACEUSED 'Sales.SalesOrderHeader'
 GO
 
@@ -26,7 +95,7 @@ GO
 -- unuised = Общий объем пространства, зарезервированный для объектов в базе данных, но пока не используемый
 
  -- если база данных содержит MEMORY_OPTIMIZED_DATA файловую группу по крайней мере с одним контейнером
- --xtp_precreated = Общий размер файлов контрольных точек с СОЗДАНным состоянием в КБ. Подсчитывает количество нераспределенного пространства в базе данных в целом. [Например, если имеется 600 000 КБ созданных файлов контрольных точек, этот столбец содержит "600000 КБ"]
+ --xtp_precreated = Общий размер файлов контрольных точек с созданным состоянием в КБ. Подсчитывает количество нераспределенного пространства в базе данных в целом. [Например, если имеется 600 000 КБ созданных файлов контрольных точек, этот столбец содержит "600000 КБ"]
 -- xtp_used	= Общий размер файлов контрольных точек с состояниями в разделе Создание, активный и целевой объект слияния, в КБ. Это место на диске, активно используемое для данных в оптимизированных для памяти таблицах.
 -- xtp_pending_truncation = Общий размер файлов контрольных точек с WAITING_FOR_LOG_TRUNCATION состояния, в КБ. Это место на диске, используемое для файлов контрольных точек, ожидающих очистки, после усечения журнала.
 
@@ -69,7 +138,6 @@ SELECT *
   FROM sys.dm_db_page_info(@dbid, 1, @pageid, N'LIMITED');	
 
 
-
 -- 5. Тестирование новой таблицы
 -- 5.1 Создать таблицу и заполнить данными
 
@@ -101,6 +169,7 @@ SElECT  * FROM viewPage;
 EXECUTE SP_SPACEUSED 'viewPage'
 
 -- 5.2 Просмотр информации о странице
+-- Найти номер страницы
 select db_name(database_id) as DatabaseName, OBJECT_NAME(object_id) TableName, allocation_unit_type, allocation_unit_type_desc, allocated_page_file_id, allocated_page_page_id 
 from sys.dm_db_database_page_allocations(db_id('AdventureWorks'),object_id('viewPage'),NULL,NULL,'DETAILED')
 where page_type = 1;
@@ -132,7 +201,7 @@ GO
 
 -- Обновленное распределение
 -- имя базы, номер файла, номер страницы, 0-3 - подробности вывода
-dbcc page('AdventureWorks',1,[INSERT PAGE N],3);
+dbcc page('AdventureWorks',1,[INSERT PAGE N],2);
 GO
 
 -- 5.4 Удаление таблицы
