@@ -1,8 +1,8 @@
 USE AdventureWorks;
 GO
--- 1. Графический Estimated execution plan
--- Выделить код и Ctrl + L (или Display Estimated Execution Plan)
--- Просмотреть информацию каждого оператора. Свойства оператора
+-- 1. Р“СЂР°С„РёС‡РµСЃРєРёР№ Estimated execution plan
+-- Р’С‹РґРµР»РёС‚СЊ РєРѕРґ Рё Ctrl + L (РёР»Рё Display Estimated Execution Plan)
+-- РџСЂРѕСЃРјРѕС‚СЂРµС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РєР°Р¶РґРѕРіРѕ РѕРїРµСЂР°С‚РѕСЂР°. РЎРІРѕР№СЃС‚РІР° РѕРїРµСЂР°С‚РѕСЂР°
 
 SELECT pp.ProductID, pp.Name , ss.SalesOrderID, ss.SalesOrderDetailID
 FROM Production.Product AS pp 
@@ -10,10 +10,10 @@ JOIN Sales.SalesOrderDetail AS ss
 ON pp.ProductID = ss.ProductID
 WHERE pp.ProductNumber LIKE 'FW%';
 
--- 2. Графический Actual execution plan
--- Нажать Ctrl + M (или Include Actual Exection Plan)
--- Выполнить код
--- Просмотреть информацию каждого оператора. Свойства оператора
+-- 2. Р“СЂР°С„РёС‡РµСЃРєРёР№ Actual execution plan
+-- РќР°Р¶Р°С‚СЊ Ctrl + M (РёР»Рё Include Actual Exection Plan)
+-- Р’С‹РїРѕР»РЅРёС‚СЊ РєРѕРґ
+-- РџСЂРѕСЃРјРѕС‚СЂРµС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РєР°Р¶РґРѕРіРѕ РѕРїРµСЂР°С‚РѕСЂР°. РЎРІРѕР№СЃС‚РІР° РѕРїРµСЂР°С‚РѕСЂР°
 -- Show Execution Plan XML
 SELECT pp.ProductID, pp.Name , ss.SalesOrderID, ss.SalesOrderDetailID
 FROM Production.Product AS pp 
@@ -21,13 +21,13 @@ JOIN Sales.SalesOrderDetail AS ss
 ON pp.ProductID=ss.ProductID
 WHERE pp.ProductNumber LIKE 'FW%';
 
--- 3. Сохранить предыдущий план Save Execution Plan As... в \Tuning-SqlServer-Databases\mod07\demo2.sqlplan
+-- 3. РЎРѕС…СЂР°РЅРёС‚СЊ РїСЂРµРґС‹РґСѓС‰РёР№ РїР»Р°РЅ Save Execution Plan As... РІ \Tuning-SqlServer-Databases\mod07\demo2.sqlplan
 
 
 -- Step 4 - Live Query Statistics
--- Отключите actual plan = Ctrl + M (или Include Actual Exection Plan)
--- Выберите Include Live Query Statistics
--- Выполните код
+-- РћС‚РєР»СЋС‡РёС‚Рµ actual plan = Ctrl + M (РёР»Рё Include Actual Exection Plan)
+-- Р’С‹Р±РµСЂРёС‚Рµ Include Live Query Statistics
+-- Р’С‹РїРѕР»РЅРёС‚Рµ РєРѕРґ
 
 SELECT pp.ProductID, pp.Name , ss.SalesOrderID, ss.SalesOrderDetailID, pr.FirstName
 FROM Production.Product AS pp 
@@ -37,8 +37,8 @@ JOIN Person.Person AS pr
 ON  CAST(pr.FirstName AS char(1)) = CAST(pp.Name AS char(1));
 
 -- 5. XML estimated execution plan
--- Отключить Live Query Statistics
--- SET SHOWPLAN_XML ON, просмотреть XML 
+-- РћС‚РєР»СЋС‡РёС‚СЊ Live Query Statistics
+-- SET SHOWPLAN_XML ON, РїСЂРѕСЃРјРѕС‚СЂРµС‚СЊ XML 
 SET SHOWPLAN_XML ON;
 GO
 SELECT pp.ProductID, pp.Name , ss.SalesOrderID, ss.SalesOrderDetailID

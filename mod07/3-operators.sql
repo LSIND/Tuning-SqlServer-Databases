@@ -1,7 +1,7 @@
 USE AdventureWorks;
 GO
 
--- 1. Таблица TestTable без ключей и индексов
+-- 1. РўР°Р±Р»РёС†Р° TestTable Р±РµР· РєР»СЋС‡РµР№ Рё РёРЅРґРµРєСЃРѕРІ
 DROP TABLE IF EXISTS TestTable;
 CREATE TABLE TestTable (ID INT, ProductName VARCHAR(50), Price DECIMAL(5,2) )
 GO
@@ -27,7 +27,7 @@ SELECT ID, ProductName FROM TestTable
 WHERE ProductName = 'Product10';
 GO
 
--- 3. Кластерный индекс на ID
+-- 3. РљР»Р°СЃС‚РµСЂРЅС‹Р№ РёРЅРґРµРєСЃ РЅР° ID
 CREATE CLUSTERED INDEX IX_TestTable_ID ON TestTable (ID)
 GO
 
@@ -43,7 +43,7 @@ WHERE ProductName = 'Product10';
 GO
 
 
--- 4. Некластерный индекс на ProductName
+-- 4. РќРµРєР»Р°СЃС‚РµСЂРЅС‹Р№ РёРЅРґРµРєСЃ РЅР° ProductName
 CREATE NONCLUSTERED INDEX IXTestTable_FirstName ON TestTable (ProductName)
 GO
 
@@ -139,15 +139,15 @@ Production.ProductSubcategory;
 
 
 -- Sort Warnings
--- Все заказы, где дата выполнения отправки больше, чем дата отправки
--- Wrong cardinality estimation – comparison operators between different columns of the same table
+-- Р’СЃРµ Р·Р°РєР°Р·С‹, РіРґРµ РґР°С‚Р° РІС‹РїРѕР»РЅРµРЅРёСЏ РѕС‚РїСЂР°РІРєРё Р±РѕР»СЊС€Рµ, С‡РµРј РґР°С‚Р° РѕС‚РїСЂР°РІРєРё
+-- Wrong cardinality estimation вЂ“ comparison operators between different columns of the same table
 SELECT *
 FROM Sales.SalesOrderHeader
 WHERE DueDate > ShipDate
 ORDER BY OrderDate;
 
--- SQL Server содержит статистику для двух столбцов, но не содержит статистики на случай, когда эти столбцы сравниваются.
--- Исправить это можно, добавив вычисляемый столбец
+-- SQL Server СЃРѕРґРµСЂР¶РёС‚ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РґР»СЏ РґРІСѓС… СЃС‚РѕР»Р±С†РѕРІ, РЅРѕ РЅРµ СЃРѕРґРµСЂР¶РёС‚ СЃС‚Р°С‚РёСЃС‚РёРєРё РЅР° СЃР»СѓС‡Р°Р№, РєРѕРіРґР° СЌС‚Рё СЃС‚РѕР»Р±С†С‹ СЃСЂР°РІРЅРёРІР°СЋС‚СЃСЏ.
+-- РСЃРїСЂР°РІРёС‚СЊ СЌС‚Рѕ РјРѕР¶РЅРѕ, РґРѕР±Р°РІРёРІ РІС‹С‡РёСЃР»СЏРµРјС‹Р№ СЃС‚РѕР»Р±РµС†
 
 ALTER TABLE Sales.SalesOrderHeader
 ADD DueDateMinusShipDate AS DATEDIFF(day, ShipDate, DueDate);
@@ -158,8 +158,7 @@ WHERE DATEDIFF(day, ShipDate, DueDate)>0
 ORDER BY OrderDate;
 
 
-
--- Аналогичная проблема при использовании переменной
+-- РђРЅР°Р»РѕРіРёС‡РЅР°СЏ РїСЂРѕР±Р»РµРјР° РїСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё РїРµСЂРµРјРµРЅРЅРѕР№
 DECLARE @OrderDate DATETIME='20110101';
 SELECT *
 FROM Sales.SalesOrderHeader

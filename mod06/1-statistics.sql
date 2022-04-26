@@ -22,7 +22,7 @@ DBCC SHOW_STATISTICS('Person.Person','PK_Person_BusinessEntityID') WITH STAT_HEA
 -- Несколько строк в векторе плотности
 -- ~ 200 шагов гистограммы
 -- 'Alexander' - EQ_ROWS = 123
-DBCC SHOW_STATISTICS('Person.Person','IX_Person_LastName_FirstName_MiddleName')
+DBCC SHOW_STATISTICS('Person.Person','IX_Person_LastName_FirstName_MiddleName');
 GO
 
 -- 4. Estimated Execution Plan 
@@ -95,6 +95,14 @@ WHERE object_id = OBJECT_ID('Person.Person')
 ORDER BY stats_id;
 GO
 
+-- * Время последнего обновления всех статистик для Таблицы
+SELECT name AS stats_name,   
+    STATS_DATE(object_id, stats_id) AS statistics_update_date  
+FROM sys.stats   
+WHERE object_id = OBJECT_ID('Person.Person');  
+GO  
+
+
 -- 9.2. Изучение новой статистики _WA_Sys_000..
 -- 'A' - RANGE_HI_KEY = 1367.047 строк
 DBCC SHOW_STATISTICS('Person.Person','_WA_Sys_00000006_7C4F7684') WITH HISTOGRAM;
@@ -109,7 +117,6 @@ SELECT  93.0/19972  --selectivity of LastName = Alonso
 * 19972 -- table cardinality
 AS estimated_cardinality;
 
--- Cardinality will be estimated based on the four most selective predicates
 
 -- * 10 Добавление еще одного предиката EmailPromotion
 -- Приблизительное количество строк = 3815,15

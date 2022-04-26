@@ -1,21 +1,21 @@
 USE AdventureWorks;
 GO
 
--- 1. Запрос с параллелизмом и предупреждениями
+-- 1. Р—Р°РїСЂРѕСЃ СЃ РїР°СЂР°Р»Р»РµР»РёР·РјРѕРј Рё РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёСЏРјРё
 -- Estimated Execution Plan: No JOIN predicate
 SELECT *
 FROM master.dbo.spt_values AS a
 CROSS JOIN master.dbo.spt_values AS b;
 
--- 2. Сравнение планов
--- Compare Showplan с demo2.sqlplan
+-- 2. РЎСЂР°РІРЅРµРЅРёРµ РїР»Р°РЅРѕРІ
+-- Compare Showplan СЃ demo2.sqlplan
 
 
--- 3. Одинаковый план для разных запросов
+-- 3. РћРґРёРЅР°РєРѕРІС‹Р№ РїР»Р°РЅ РґР»СЏ СЂР°Р·РЅС‹С… Р·Р°РїСЂРѕСЃРѕРІ
 -- 3.1. estimated execution plan 
 -- 3.2 actual execution plan 
--- warning -> Clustered Index Seek таблицы Orders (отсутствует статистика)
--- Отличия между actual и estimated количеством строк для Clustered Index Seek таблицы Orders
+-- warning -> Clustered Index Seek С‚Р°Р±Р»РёС†С‹ Orders (РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ СЃС‚Р°С‚РёСЃС‚РёРєР°)
+-- РћС‚Р»РёС‡РёСЏ РјРµР¶РґСѓ actual Рё estimated РєРѕР»РёС‡РµСЃС‚РІРѕРј СЃС‚СЂРѕРє РґР»СЏ Clustered Index Seek С‚Р°Р±Р»РёС†С‹ Orders
 -- Nested Loops join
 
 SELECT o.orderid, o.orderdate,
@@ -33,15 +33,15 @@ CROSS APPLY (	SELECT productid, unitprice, qty
 			) AS od;
 
 
--- 4. Решение проблемы п.3
--- Сгенерировать статистику -- Warning удален
+-- 4. Р РµС€РµРЅРёРµ РїСЂРѕР±Р»РµРјС‹ Рї.3
+-- РЎРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ СЃС‚Р°С‚РёСЃС‚РёРєСѓ -- Warning СѓРґР°Р»РµРЅ
 CREATE STATISTICS Orders_OrderId
     ON TSQL.Sales.Orders (orderid)
     WITH FULLSCAN
 
--- 5. Добавление индекса
--- Выполнить запрос: Estimated Subtree Cost для SELECT: > 1.28
--- Пропущенный индекс
+-- 5. Р”РѕР±Р°РІР»РµРЅРёРµ РёРЅРґРµРєСЃР°
+-- Р’С‹РїРѕР»РЅРёС‚СЊ Р·Р°РїСЂРѕСЃ: Estimated Subtree Cost РґР»СЏ SELECT: > 1.28
+-- РџСЂРѕРїСѓС‰РµРЅРЅС‹Р№ РёРЅРґРµРєСЃ
 
 SELECT 
 	pp.Name,
@@ -53,14 +53,14 @@ ON pp.ProductID=ss.ProductID
 WHERE ss.OrderQty > 10
 
 
--- 6. Создание покрывающего INCLUDE индекса
+-- 6. РЎРѕР·РґР°РЅРёРµ РїРѕРєСЂС‹РІР°СЋС‰РµРіРѕ INCLUDE РёРЅРґРµРєСЃР°
 
 CREATE NONCLUSTERED INDEX ix_SalesOrderDetail_OrderQty
 ON Sales.SalesOrderDetail (OrderQty)
 INCLUDE (ProductID,UnitPrice)
 
 
--- 7. Снова выполнить запрос, subtree cost of the actual execution plan < 0.1
+-- 7. РЎРЅРѕРІР° РІС‹РїРѕР»РЅРёС‚СЊ Р·Р°РїСЂРѕСЃ, subtree cost of the actual execution plan < 0.1
 SELECT 
 	pp.Name,
 	pp.ProductLine,
@@ -71,5 +71,5 @@ ON pp.ProductID=ss.ProductID
 WHERE ss.OrderQty > 10;
 
 
--- 8. Удалить индекс
+-- 8. РЈРґР°Р»РёС‚СЊ РёРЅРґРµРєСЃ
 DROP INDEX Sales.SalesOrderDetail.ix_SalesOrderDetail_OrderQty;

@@ -1,10 +1,10 @@
 USE AdventureWorks;
 GO
 
--- 1. Упрощение запроса
--- Создайте Estimated Execution Plan (Ctrl+L)
--- Отсутствует scan Sales.SalesOrderHeader
--- FK Sales.SalesOrderDetail -> Sales.SalesOrderHeader не используется
+-- 1. РЈРїСЂРѕС‰РµРЅРёРµ Р·Р°РїСЂРѕСЃР°
+-- РЎРѕР·РґР°Р№С‚Рµ Estimated Execution Plan (Ctrl+L)
+-- РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ scan Sales.SalesOrderHeader
+-- FK Sales.SalesOrderDetail -> Sales.SalesOrderHeader РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
 
 SELECT pp.Name
 FROM Production.Product pp 
@@ -13,34 +13,34 @@ ON pp.ProductID=ss.ProductID
 JOIN Sales.SalesOrderHeader AS oh
 ON ss.SalesOrderID=oh.SalesOrderID;
 
--- 2. Упрощение запроса
--- Создайте Estimated Execution Plan (Ctrl+L)
--- В плане нет ссылки на таблицу HumanResources.Employee
--- В столбце SickLeaveHours содержится ограничение, что значение <= 120
--- По данному запросу нет результирующего набора - запрос упрощен.
+-- 2. РЈРїСЂРѕС‰РµРЅРёРµ Р·Р°РїСЂРѕСЃР°
+-- РЎРѕР·РґР°Р№С‚Рµ Estimated Execution Plan (Ctrl+L)
+-- Р’ РїР»Р°РЅРµ РЅРµС‚ СЃСЃС‹Р»РєРё РЅР° С‚Р°Р±Р»РёС†Сѓ HumanResources.Employee
+-- Р’ СЃС‚РѕР»Р±С†Рµ SickLeaveHours СЃРѕРґРµСЂР¶РёС‚СЃСЏ РѕРіСЂР°РЅРёС‡РµРЅРёРµ, С‡С‚Рѕ Р·РЅР°С‡РµРЅРёРµ <= 120
+-- РџРѕ РґР°РЅРЅРѕРјСѓ Р·Р°РїСЂРѕСЃСѓ РЅРµС‚ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРіРѕ РЅР°Р±РѕСЂР° - Р·Р°РїСЂРѕСЃ СѓРїСЂРѕС‰РµРЅ.
 SELECT * FROM HumanResources.Employee 
 WHERE SickLeaveHours = 500;
 
--- Проверить CHECK CONSTRAINT:
+-- РџСЂРѕРІРµСЂРёС‚СЊ CHECK CONSTRAINT:
 SELECT CHECK_CLAUSE FROM INFORMATION_SCHEMA.CHECK_CONSTRAINTS 
 WHERE CONSTRAINT_NAME = 'CK_Employee_SickLeaveHours'
 
--- 3. Тривиальный план
--- Создайте Estimated Execution Plan (Ctrl+L)
--- Включите Actual Execution Plan (Ctrl+M). Выполните запрос
--- Выберите оператор SELECT (cost 0%) -> свойства (F4)
--- Уровень оптимизации "Optimization Level" - "TRIVIAL"
+-- 3. РўСЂРёРІРёР°Р»СЊРЅС‹Р№ РїР»Р°РЅ
+-- РЎРѕР·РґР°Р№С‚Рµ Estimated Execution Plan (Ctrl+L)
+-- Р’РєР»СЋС‡РёС‚Рµ Actual Execution Plan (Ctrl+M). Р’С‹РїРѕР»РЅРёС‚Рµ Р·Р°РїСЂРѕСЃ
+-- Р’С‹Р±РµСЂРёС‚Рµ РѕРїРµСЂР°С‚РѕСЂ SELECT (cost 0%) -> СЃРІРѕР№СЃС‚РІР° (F4)
+-- РЈСЂРѕРІРµРЅСЊ РѕРїС‚РёРјРёР·Р°С†РёРё "Optimization Level" - "TRIVIAL"
 SELECT * 
 FROM HumanResources.Employee;
 
--- *Когда запрос, имеющий указание HINT ('QUERY_PLAN_PROFILE'), завершает выполнение, создается расширенное событие query_plan_profile, которое предоставляет фактический план выполнения.
+-- *РљРѕРіРґР° Р·Р°РїСЂРѕСЃ, РёРјРµСЋС‰РёР№ СѓРєР°Р·Р°РЅРёРµ HINT ('QUERY_PLAN_PROFILE'), Р·Р°РІРµСЂС€Р°РµС‚ РІС‹РїРѕР»РЅРµРЅРёРµ, СЃРѕР·РґР°РµС‚СЃСЏ СЂР°СЃС€РёСЂРµРЅРЅРѕРµ СЃРѕР±С‹С‚РёРµ query_plan_profile, РєРѕС‚РѕСЂРѕРµ РїСЂРµРґРѕСЃС‚Р°РІР»СЏРµС‚ С„Р°РєС‚РёС‡РµСЃРєРёР№ РїР»Р°РЅ РІС‹РїРѕР»РЅРµРЅРёСЏ.
 SELECT * 
 FROM HumanResources.Employee
 OPTION(USE HINT ('QUERY_PLAN_PROFILE'));
 
 
--- 4. Правила трансформации
--- 4.1. Создайте временную таблицу # и поместите в нее значения из sys.dm_exec_query_transformation_stats
+-- 4. РџСЂР°РІРёР»Р° С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёРё
+-- 4.1. РЎРѕР·РґР°Р№С‚Рµ РІСЂРµРјРµРЅРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ # Рё РїРѕРјРµСЃС‚РёС‚Рµ РІ РЅРµРµ Р·РЅР°С‡РµРЅРёСЏ РёР· sys.dm_exec_query_transformation_stats
 
 DROP TABLE IF EXISTS #transformation_stats_before_query_execution;
 DROP TABLE IF EXISTS #transformation_stats_after_query_execution;
@@ -50,7 +50,7 @@ SELECT *
 INTO #transformation_stats_before_query_execution
 FROM sys.dm_exec_query_transformation_stats;
 
--- 4.2. Запрос с RECOMPILE
+-- 4.2. Р—Р°РїСЂРѕСЃ СЃ RECOMPILE
 SELECT pp.ProductID, Count(*) ProductCount 
 INTO #result
 FROM Production.Product pp JOIN Sales.SalesOrderDetail ss
@@ -70,7 +70,7 @@ SELECT * FROM #transformation_stats_before_query_execution ;
 DROP TABLE IF EXISTS #result;
 GO
 
--- WITH RECOMPILE, SP и Dynamic SQL
+-- WITH RECOMPILE, SP Рё Dynamic SQL
 
 CREATE OR ALTER PROCEDURE GetSalesInfo (@SalesPersonID INT = NULL)
 AS

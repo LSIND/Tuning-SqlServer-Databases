@@ -1,7 +1,7 @@
 USE AdventureWorks;
 GO
 
--- Удаление объектов, созданных в ЛР7
+-- РЈРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ, СЃРѕР·РґР°РЅРЅС‹С… РІ Р›Р 7
 IF OBJECT_ID(N'[FK_Campaign_SalesTerritory]') IS NOT NULL
 BEGIN
 ALTER TABLE Proseware.Campaign
