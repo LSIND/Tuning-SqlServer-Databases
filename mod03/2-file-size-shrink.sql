@@ -74,8 +74,79 @@ use shrinktest
 exec sp_spaceused 
 
 -- Check index fragmentation
+-- Индексы стали сильно фрагментированными (но не куча)
 select * from sys.dm_db_index_physical_stats (DB_ID('shrinktest'), NULL, NULL, NULL, NULL) 
 where avg_fragmentation_in_percent > 0 order by avg_fragmentation_in_percent desc;
+
+SELECT * FROM sys.database_files;
+
+
+
+-- Альтернатива
+-- 1. Создание filegroup и файла БД
+
+ALTER DATABASE shrinktest  
+ADD FILEGROUP MovingFGData;  
+GO  
+
+ALTER DATABASE shrinktest   
+ADD FILE   
+(  
+    NAME = MovingData,  
+    FILENAME = 'D:\TestDB\MovingData.ndf',  
+    SIZE = 8MB,  
+    --MAXSIZE = 100MB,  
+    FILEGROWTH = 64MB  
+)  
+TO FILEGROUP MovingFGData;  
+GO
+
+-- 2. Переместить индексы в новую файловую группу  WITH (DROP_EXISTING = ON)  
+CREATE CLUSTERED INDEX idx1_testtable  
+    ON dbo.testtable (salesOrderID)
+    WITH (DROP_EXISTING = ON)  
+    ON MovingFGData;  
+GO  
+
+CREATE NONCLUSTERED INDEX idx2_testtable 
+on dbo.testtable (carrierTrackingNumber,SalesOrderId)
+WITH (DROP_EXISTING = ON)  
+    ON MovingFGData;
+GO
+
+CREATE NONCLUSTERED INDEX idx3_testtable on dbo.testtable (ModifiedDate)
+WITH (DROP_EXISTING = ON)  
+    ON MovingFGData;
+GO
+
+
+-- 3. Применить SHRINK к кучам (Кучи не становятся фрагментированными)
+-- ***Удалить исходную file group.
+DBCC SHRINKFILE('shrinktest_data',100)
+
+DBCC SHRINKFILE('shrinktest_log',50)
+
+
+-- Просмотр объектов в файловых группах
+
+SELECT  OBJECT_NAME(i.id) AS [TableName]
+       , i.indid, i.[name] AS [IndexName]
+       , i.groupid, f.name  AS [FileGroup]
+       , d.physical_name AS [FileName], s.name AS [FileGroup]
+FROM    sys.sysindexes AS i
+INNER JOIN  sys.filegroups AS f     
+ON  f.data_space_id = i.groupid  AND f.data_space_id = i.groupid
+INNER JOIN  sys.database_files AS d  
+ON  f.data_space_id = d.data_space_id
+INNER JOIN  sys.data_spaces AS s  
+ON  f.data_space_id = s.data_space_id
+WHERE   OBJECTPROPERTY(i.id, 'IsUserTable') = 1
+ORDER BY f.name, OBJECT_NAME(i.id), groupid;
+
+
+DROP DATABASE IF EXISTS shrinktest;
+USE [master]
+GO
 
 
 -- 4. Мониторинг файлов и групп БД

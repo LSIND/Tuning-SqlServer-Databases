@@ -67,6 +67,30 @@ FROM sys.dm_exec_cached_plans
 WHERE objtype = 'Adhoc' AND usecounts = 1
 GROUP BY objtype, cacheobjtype;
 
+-- FORCE PARAMETERIZATION - не рекомендуется
+
+SELECT name, is_parameterization_forced FROM sys.databases;
+
+-- Одинаковые планы при разном результирующем наборе
+-- Автоматический подбор параметров (auto-parameterization)
+SELECT * FROM Sales.CreditCard WHERE CreditCardID = 11;
+SELECT * FROM Sales.CreditCard WHERE CreditCardID = 207;
+
+SELECT ProductID, [Name], SellEndDate
+FROM Production.Product
+WHERE ISNULL(SellEndDate, '19900101') > '20130504';
+
+/*
+use master;
+GO
+ --Forced
+ALTER DATABASE AdventureWorks SET PARAMETERIZATION FORCED
+
+--Simple
+ALTER DATABASE AdventureWorks SET PARAMETERIZATION SIMPLE */
+
+-------------------------------------------------------
+
 
 -- 8. Рекомпиляция хранимой процедуры
 -- 8.1. Выполнить ХП  -> пустой результирующий набор

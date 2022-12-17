@@ -58,3 +58,20 @@ SELECT * FROM sys.dm_xe_sessions;
 
 -- Серверные
 SELECT * FROM sys.server_event_sessions;
+
+
+-- События из system_health по количеству
+
+ WITH CTE_EventXML AS 
+(  SELECT ed = CAST(event_data AS XML)   
+ FROM sys.fn_xe_file_target_read_file(N'system_health*.xel', NULL, NULL, NULL)
+ ) 
+ SELECT -- TOP(3)
+    EventName,  EventCount = COUNT(*)
+  FROM (  
+  SELECT  ed.value(N'(event/@timestamp)[1]', N'datetime'),  
+    ed.value(N'(event/@name)[1]',      N'nvarchar(255)')  
+   FROM CTE_EventXML  
+   WHERE ed.value(N'(event/@timestamp)[1]', N'datetime') > '20221208') AS t(EventTime, EventName)
+  GROUP BY EventName
+  ORDER BY EventCount DESC;

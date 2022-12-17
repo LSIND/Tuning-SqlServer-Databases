@@ -59,7 +59,7 @@ WHERE wait_duration > 0
 GROUP BY sessionID, wait_type
 ORDER BY sessionID, wait_type;
 
--- 4. Останова и удаление сессии, а также остановка нагрузки load_script1.sql
+-- 4. Остановка и удаление сессии, а также остановка нагрузки load_script1.sql
 ALTER EVENT SESSION [Waits by Session] ON SERVER
 	STATE=STOP
 GO

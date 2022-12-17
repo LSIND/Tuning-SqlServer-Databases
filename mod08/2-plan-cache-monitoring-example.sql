@@ -17,7 +17,7 @@ GO
 SELECT * FROM Sales.SalesOrderHeader AS soh 
 JOIN Sales.SalesOrderDetail AS sod
 ON sod.SalesOrderID = soh.SalesOrderID
-WHERE soh.SalesOrderID =  43667
+WHERE soh.SalesOrderID =     43667
 AND sod.UnitPrice > 10.00
 GO
 SELECT * FROM Sales.SalesOrderHeader AS soh 
@@ -26,6 +26,32 @@ ON sod.SalesOrderID = soh.SalesOrderID
 WHERE soh.SalesOrderID = 43668
 AND sod.UnitPrice > 12.00
 GO 
+
+
+DECLARE @q1 nvarchar(500) = 'SELECT * FROM Sales.SalesOrderHeader AS soh 
+JOIN Sales.SalesOrderDetail AS sod
+ON sod.SalesOrderID = soh.SalesOrderID
+WHERE soh.SalesOrderID = 43667
+AND sod.UnitPrice > 10.00';
+EXECUTE(@q1)
+GO
+
+DECLARE @q2 nvarchar(500) = 'SELECT * FROM Sales.SalesOrderHeader AS soh 
+JOIN Sales.SalesOrderDetail AS sod
+ON sod.SalesOrderID = soh.SalesOrderID
+WHERE soh.SalesOrderID =     43667
+AND sod.UnitPrice > 10.00';
+EXECUTE(@q2)
+GO
+
+DECLARE @q3 nvarchar(500) = 'SELECT * FROM Sales.SalesOrderHeader AS soh 
+JOIN Sales.SalesOrderDetail AS sod
+ON sod.SalesOrderID = soh.SalesOrderID
+WHERE soh.SalesOrderID = 43668
+AND sod.UnitPrice > 12.00';
+EXECUTE(@q3)
+GO
+
 
 -- 3. Кэши планов. Значение query_hash одинаково для трех планов
 SELECT p.objtype, qs.query_hash, p.plan_handle, qp.query_plan, st.[text], p.usecounts
@@ -57,7 +83,7 @@ JOIN sys.dm_exec_query_stats AS qs
 ON qs.plan_handle = p.plan_handle
 CROSS APPLY sys.dm_exec_query_plan(p.plan_handle) AS qp
 CROSS APPLY sys.dm_exec_sql_text(p.plan_handle) AS st 
-WHERE st.[text] LIKE 'SELECT * FROM ' + 'Sales.SalesOrderHeader%';
+WHERE st.[text] LIKE '%SELECT * FROM%';
 
 -- 8. Первый запрос из п.2 (тот же текст)
 SELECT * FROM Sales.SalesOrderHeader AS soh 
@@ -79,4 +105,30 @@ WHERE st.[text] LIKE 'SELECT * FROM ' + 'Sales.SalesOrderHeader%';
 -- 10. Изменить свойство optimize for ad-hoc workloads = 0
 EXEC sp_configure 'optimize for ad hoc workload', 0
 RECONFIGURE
+GO
+
+
+
+DECLARE @q1 nvarchar(500) = 'SELECT * FROM Sales.SalesOrderHeader AS soh 
+JOIN Sales.SalesOrderDetail AS sod
+ON sod.SalesOrderID = soh.SalesOrderID
+WHERE soh.SalesOrderID = 43667
+AND sod.UnitPrice > 10.00';
+exec sp_executesql @q1
+GO
+
+DECLARE @q2 nvarchar(500) = 'SELECT * FROM Sales.SalesOrderHeader AS soh 
+JOIN Sales.SalesOrderDetail AS sod
+ON sod.SalesOrderID = soh.SalesOrderID
+WHERE soh.SalesOrderID =     43667
+AND sod.UnitPrice > 10.00';
+exec sp_executesql @q2
+GO
+
+DECLARE @q3 nvarchar(500) = 'SELECT * FROM Sales.SalesOrderHeader AS soh 
+JOIN Sales.SalesOrderDetail AS sod
+ON sod.SalesOrderID = soh.SalesOrderID
+WHERE soh.SalesOrderID = 43668
+AND sod.UnitPrice > 12.00';
+exec sp_executesql @q3
 GO

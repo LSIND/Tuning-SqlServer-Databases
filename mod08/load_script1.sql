@@ -7,9 +7,13 @@ USE TSQL;
 GO
 
 DECLARE @start datetime2 = GETDATE();
+DECLARE @dd int = DATEDIFF(ss,@start,GETDATE())
+--print @dd
+
+
 IF @@SPID % 5 = 0
 	BEGIN --update
-		WHILE DATEDIFF(ss,@start,GETDATE()) < 3600 AND OBJECT_ID('tempdb..##stopload') IS NULL
+		WHILE @dd < 3600 AND OBJECT_ID('tempdb..##stopload') IS NULL
 		BEGIN
 											
 			UPDATE TOP (10) Sales.Orders SET shippeddate = GETDATE();
@@ -19,7 +23,7 @@ IF @@SPID % 5 = 0
 	END
 ELSE
 	BEGIN --select
-		WHILE DATEDIFF(ss,@start,GETDATE()) < 3600 AND OBJECT_ID('tempdb..##stopload') IS NULL
+		WHILE @dd < 3600 AND OBJECT_ID('tempdb..##stopload') IS NULL
 		BEGIN
 				DECLARE @sid1 int, @sid2 int ;
 
@@ -41,4 +45,3 @@ ELSE
 		END
 
 	END
-	

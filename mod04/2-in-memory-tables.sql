@@ -61,7 +61,7 @@ select * from dbo.nondurable;
  DROP TABLE IF EXISTS dbo.nondurable;
  GO
 
--- 6. Сравнение In-Memoty Table и таблице на диске
+-- 6. Сравнение In-Memory Table и таблицы на диске
 
 -- 6.1 Таблица в памяти
 CREATE TABLE dbo.MemoryTable

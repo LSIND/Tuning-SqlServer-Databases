@@ -1,4 +1,4 @@
--- Системные предстовления для Autotuning
+-- Системные представления для Autotuning
 
 SELECT * FROM sys.dm_db_tuning_recommendations;
 
