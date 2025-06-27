@@ -1,27 +1,27 @@
+-- Сеанс с гистограммой
 
--- Сессия с гистогоаммой
 
-
+-- 64 slots - количество объектов
 CREATE EVENT SESSION XECollectWaitStats ON SERVER 
 ADD EVENT sqlos.wait_info(
     ACTION(sqlserver.database_id))
 	ADD TARGET package0.histogram(SET slots = 64, filtering_event_name=N'sqlos.wait_info', source=N'wait_type',source_type=(0))
 GO
 
--- Запуск сессии
+-- Запуск Сеанса
 ALTER EVENT SESSION XECollectWaitStats ON SERVER
 	STATE=START
 GO
 
 
--- Данные всех сессий
+-- Данные всех Сеансов
 SELECT name, target_name, CAST(xet.target_data AS xml) as XML_data
 FROM sys.dm_xe_session_targets AS xet  
 JOIN sys.dm_xe_sessions AS xe
 ON (xe.address = xet.event_session_address)
 
 
--- Данные сессии (гистограмма)
+-- Данные Сеанса (гистограмма)
 SELECT 
 xed.XML_data.value('(value)[1]', 'varchar(256)') AS wait_type,
 xed.XML_data.value('(@count)[1]', 'varchar(256)') AS wait_count
@@ -30,7 +30,7 @@ SELECT CAST(xet.target_data AS xml) as XML_data
 FROM sys.dm_xe_session_targets AS xet  
 JOIN sys.dm_xe_sessions AS xe
 ON (xe.address = xet.event_session_address)
-WHERE xe.name = 'XECollectWaitStats' -- Сессия
+WHERE xe.name = 'XECollectWaitStats' -- Сеанс
 AND target_name= 'histogram' -- target 
     ) as t
 CROSS APPLY t.XML_data.nodes('//HistogramTarget/Slot') AS xed (XML_data)
@@ -64,7 +64,7 @@ ON xm.wait_type = mv.map_key
 WHERE mv.name='wait_types'
 
 
--- остановка сессии
+-- остановка Сеанса
 ALTER EVENT SESSION XECollectWaitStats ON SERVER
 	STATE=STOP
 GO

@@ -167,3 +167,15 @@ WHERE session_id = 55;
 
 SELECT query_plan   
 FROM sys.dm_exec_text_query_plan (0x06000700EA222729D0E2EA844501000001000000000000000000000000000000000000000000000000000000,0,-1);  
+
+
+-- Поиск предупреждений в кэшированных планах
+SELECT 
+    qs.query_hash,
+    qs.query_plan_hash,
+    qp.query_plan,
+    qs.execution_count,
+    qs.total_worker_time
+FROM sys.dm_exec_query_stats AS qs
+CROSS APPLY sys.dm_exec_query_plan(qs.plan_handle) AS qp
+WHERE CAST(qp.query_plan AS NVARCHAR(MAX)) LIKE '%<Warnings>%';

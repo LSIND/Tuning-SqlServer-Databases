@@ -6,29 +6,29 @@ GO
  
 USE deadLockDb;
  
-CREATE TABLE table1
+CREATE TABLE dbo.table1
 (
 	id INT IDENTITY PRIMARY KEY,
 	student_name NVARCHAR(50)
 );
  
-INSERT INTO table1 values ('James');
-INSERT INTO table1 values ('Andy');
-INSERT INTO table1 values ('Sal');
-INSERT INTO table1 values ('Helen');
-INSERT INTO table1 values ('Jo');
-INSERT INTO table1 values ('Wik');
+INSERT INTO dbo.table1 values ('James');
+INSERT INTO dbo.table1 values ('Andy');
+INSERT INTO dbo.table1 values ('Sal');
+INSERT INTO dbo.table1 values ('Helen');
+INSERT INTO dbo.table1 values ('Jo');
+INSERT INTO dbo.table1 values ('Wik');
  
  
-CREATE TABLE table2
+CREATE TABLE dbo.table2
 (
 	id INT IDENTITY PRIMARY KEY,
 	student_name NVARCHAR(50)
 );
  
-INSERT INTO table2 values ('Alan');
-INSERT INTO table2 values ('Rik');
-INSERT INTO table2 values ('Jack');
-INSERT INTO table2 values ('Mark');
-INSERT INTO table2 values ('Josh');
-INSERT INTO table2 values ('Fred');
+INSERT INTO dbo.table2 values ('Alan');
+INSERT INTO dbo.table2 values ('Rik');
+INSERT INTO dbo.table2 values ('Jack');
+INSERT INTO dbo.table2 values ('Mark');
+INSERT INTO dbo.table2 values ('Josh');
+INSERT INTO dbo.table2 values ('Fred');

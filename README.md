@@ -24,4 +24,4 @@
 - DP-203: Data Engineering on Microsoft Azure
 - DP-900: Microsoft Azure Data Fundamentals
 
-**актуальность – апрель 2022*
+**актуальность – апрель 2024*

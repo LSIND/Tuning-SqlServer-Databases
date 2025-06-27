@@ -7,6 +7,15 @@ GO
 SELECT name, snapshot_isolation_state_desc, is_read_committed_snapshot_on 
 FROM sys.databases;
 
+-- отключить SNAPSHOT и READ_COMMITTED_SNAPSHOT
+use master;
+
+ALTER DATABASE AdventureWorks SET ALLOW_SNAPSHOT_ISOLATION OFF
+GO 
+ALTER DATABASE AdventureWorks SET READ_COMMITTED_SNAPSHOT OFF
+GO 
+
+
 -- II. Найти номер телефона для заказчика CustomerID = 19169: 725-555-0131
 SELECT CustomerID,  [PhoneNumber]
 FROM [Sales].[CustomerPII]
@@ -32,7 +41,7 @@ GO
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED
 GO
 SELECT CustomerID,  [PhoneNumber]
-FROM [Sales].[CustomerPII] WITH (READCOMMITTEDLOCK)
+FROM [Sales].[CustomerPII] WITH (READCOMMITTEDLOCK) -- hint закомментировать
 WHERE CustomerID = 19169
 GO
 
@@ -52,7 +61,7 @@ WHERE CustomerID = 19169;
 -- Выполнить запрос; вернет значение: 333-333-3333
 
 SELECT CustomerID,  [PhoneNumber]
-FROM [Sales].[CustomerPII] WITH (READCOMMITTEDLOCK)
+FROM [Sales].[CustomerPII] WITH (READCOMMITTEDLOCK) -- hint закомментировать
 WHERE CustomerID = 19169;
 COMMIT
 
